@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\InternshipOcrController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -39,6 +40,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/internships/{internship}/timeline', [\App\Http\Controllers\TimelineController::class, 'index'])->name('timeline.index');
     Route::post('/internships/{internship}/timeline', [\App\Http\Controllers\TimelineController::class, 'addTimelineEvent'])->name('timeline.add');
     Route::delete('/internships/{internship}/timeline/{timeline_event}', [\App\Http\Controllers\TimelineController::class, 'deleteTimelineEvent'])->name('timeline.delete');
+
+    // OCR route for processing internship screenshots
+    // Endpoint destination path: http://your-laravel-domain.test/internship/extract
+    Route::post('/internship/extract', [InternshipOcrController::class, 'processScreenshot'])->name('internship.extract');
 });
 
 require __DIR__ . '/auth.php';

@@ -1,0 +1,15 @@
+{
+  "folders": [
+	{
+		"name": "AI-features",
+		"path": "../../../downloads/Smart-Internship-Tracker-main/Smart-Internship-Tracker-main/AntiMahinangNIlalang/AI-features"
+	},
+	{
+		"name": "AntiMahinangNIlalang",
+		"path": "."
+	}
+],
+  "settings": {
+    "python-envs.defaultEnvManager": "ms-python.python:system"
+  }
+}
