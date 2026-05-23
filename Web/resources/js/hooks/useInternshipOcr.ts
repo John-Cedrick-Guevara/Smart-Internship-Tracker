@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { Internship, InternshipStatus } from "../types/internship";
-import { router, usePage } from "@inertiajs/react";
 
 interface InternshipFormState {
     companyName: string;
@@ -83,9 +82,9 @@ export function useInternshipOcr(
         };
     }, [formState]);
 
-    // AI parsing - Send to Laravel endpoint using Inertia
+    // AI parsing - Send to Laravel endpoint using fetch
     const aiParsing = useCallback(async () => {
-        if (!formState.selectedImage) return;
+        if (!formState.selectedImage || formState.isParsing) return;
 
         updateFormState({ isParsing: true });
 
@@ -98,51 +97,56 @@ export function useInternshipOcr(
             const formData = new FormData();
             formData.append("image", blob, "screenshot.png");
 
-            // Send request using Inertia's router with preserveState for API-like behavior
-            router.post("/internship/extract", formData, {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: (page) => {
-                    const data = page.props.aiExtractedData as any;
-                    if (data?.success) {
-                      console.log(data.data)
-                        updateFormState({
-                            companyName: data.data?.company_name || "",
-                            companyEmail: data.data?.company_email || "",
-                            position: data.data?.position || "",
-                            location: data.data?.location || "",
-                            duration: data.data?.duration || "",
-                            url: data.data?.url || "",
-                            status:
-                                (data.data?.status as InternshipStatus) ||
-                                "wishlist",
-                            isPaid: data.data?.is_paid ?? true,
-                            isParsing: false,
-                        });
-
-                        console.log("AI parsing successful:", data.data);
-                        formState.selectedImage && resetImage(); // Clear image after successful parsing
-                        onParseComplete();
-                    } else {
-                        throw new Error(data?.error || "Upload failed");
-                    }
-                },
-                onError: (errors) => {
-                    ``;
-                    console.error("AI parsing error:", errors);
-                    updateFormState({ isParsing: false });
-                    formState.selectedImage && resetImage(); // Clear image after failed parsing
-                },
-                onFinish: () => {
-                    // Always called at the end
-                    updateFormState({ isParsing: false });
+            // Send request using fetch (this is an API call, not a page navigation)
+            const apiResponse = await fetch("/internship/extract", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
                 },
             });
+
+            if (!apiResponse.ok) {
+                const errorData = await apiResponse.json();
+                throw new Error(errorData?.error || "Upload failed");
+            }
+
+            const data = await apiResponse.json();
+            if (data?.success) {
+                console.log(data.data);
+                updateFormState({
+                    companyName: data.data?.company_name || "",
+                    companyEmail: data.data?.company_email || "",
+                    position: data.data?.position || "",
+                    location: data.data?.location || "",
+                    duration: data.data?.duration || "",
+                    url: data.data?.url || "",
+                    status:
+                        (data.data?.status as InternshipStatus) || "wishlist",
+                    isPaid: data.data?.is_paid ?? true,
+                    isParsing: false,
+                });
+
+                console.log("AI parsing successful:", data.data);
+                resetImage(); // Clear image after successful parsing
+                onParseComplete();
+            } else {
+                throw new Error(data?.error || "Upload failed");
+            }
         } catch (error) {
             console.error("AI parsing error:", error);
             updateFormState({ isParsing: false });
+            resetImage(); // Clear image after failed parsing
         }
-    }, [formState.selectedImage, updateFormState]);
+    }, [
+        formState.selectedImage,
+        formState.isParsing,
+        updateFormState,
+        onParseComplete,
+    ]);
 
     // Drag and drop handlers
     const handleDrag = useCallback(
@@ -204,13 +208,6 @@ export function useInternshipOcr(
             aiParsing();
         }
     }, [formState.selectedImage, aiParsing]);
-
-    // Trigger AI parsing when image is selected
-    useEffect(() => {
-        if (formState.selectedImage && !formState.isParsing) {
-            aiParsing();
-        }
-    }, [formState.selectedImage, formState.isParsing]);
 
     return {
         formState,

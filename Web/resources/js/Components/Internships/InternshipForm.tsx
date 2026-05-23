@@ -473,7 +473,7 @@ export default function InternshipForm({
                                                     size="sm"
                                                     onClick={rescanImage}
                                                 >
-                                                    Re-Scan listing
+                                                    Star Scanning
                                                 </Button>
                                             </div>
                                         </div>

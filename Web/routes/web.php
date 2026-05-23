@@ -44,6 +44,10 @@ Route::middleware('auth')->group(function () {
     // OCR route for processing internship screenshots
     // Endpoint destination path: http://your-laravel-domain.test/internship/extract
     Route::post('/internship/extract', [InternshipOcrController::class, 'processScreenshot'])->name('internship.extract');
+
+    // Interview questions storage and retrieval
+    Route::get('/interview-questions', [\App\Http\Controllers\InterviewQuestionController::class, 'index'])->name('interview_questions.index');
+    Route::post('/interview-questions', [\App\Http\Controllers\InterviewQuestionController::class, 'store'])->name('interview_questions.store');
 });
 
 require __DIR__ . '/auth.php';

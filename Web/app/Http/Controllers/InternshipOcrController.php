@@ -5,91 +5,152 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
+use App\Models\InterviewQuestion;
 
 class InternshipOcrController extends Controller
 {
-    //
     public function processScreenshot(Request $request)
     {
-        set_time_limit(300);
-        $validated = $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:5120', // Max 5MB file size limit
+        if ($request->header('X-Inertia')) {
+            return redirect()->back();
+        }
+
+        set_time_limit(120); // Give the local VPS OCR model time to process tokens
+
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:5120',
         ]);
 
         try {
             $file = $request->file('image');
 
-            $fastAPIUrl = env('FAST_API_URL', 'http://127.0.0.1:8001/api/v1/ocr/extract'); // Ensure this is set in your .env file
+            // --- STEP 1: Send Image to FastAPI service for OCR ---
+            $fastAPIUrl = 'http://127.0.0.1:8001/extract-text/';
 
+            try {
+                $ocrResponse = Http::timeout(60)->attach(
+                    'file',
+                    file_get_contents($file->getRealPath()),
+                    $file->getClientOriginalName()
+                )->post($fastAPIUrl);
+            } catch (\Exception $e) {
+                Log::warning('OCR Service Connection Failed: ' . $e->getMessage());
+                return response()->json(['error' => 'OCR service is unavailable. Please try again later.'], 503);
+            }
 
-            $response = Http::timeout(300)->attach(
-                'file',
-                file_get_contents($file->getRealPath()), // Read the raw temporary image binary bytes
-                $file->getClientOriginalName() // Pass along the original filename anchor string
-            )->post($fastAPIUrl);
+            if ($ocrResponse->failed()) {
+                $errorMessage = $ocrResponse->json()['detail'] ?? 'OCR extraction failed';
+                Log::warning('OCR Extraction Failed: ' . $errorMessage);
+                return response()->json(['error' => 'Failed to extract text from image. ' . $errorMessage], 400);
+            }
 
-            // Handle structural communication network failure errors safely
-            if ($response->failed()) {
-                Log::error('FastAPI Connection Failure:', ['body' => $response->body()]);
-                $payload = [
-                    'success' => false,
-                    'message' => 'The AI extraction engine is temporarily unavailable. Please try again later.',
-                    'data' => null,
-                ];
+            $ocrData = $ocrResponse->json();
+            Log::info('OCR Response received successfully');
 
-                if ($request->header('X-Inertia') || !$request->wantsJson()) {
-                    $internships = $request->user()->internships()->with(['notes', 'timeline'])->latest()->get();
-                    return Inertia::render('Internships/Index', [
-                        'internships' => $internships,
-                        'aiExtractedData' => $payload,
-                    ]);
+            if (!isset($ocrData['extracted_text']) || empty($ocrData['extracted_text'])) {
+                Log::warning('No text extracted from image');
+                return response()->json(['error' => 'No text could be extracted from the image. Please try a clearer image.'], 400);
+            }
+
+            $extractedText = $ocrData['extracted_text'];
+
+            $geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=' . env('GEMINI_API_KEY');
+
+            $payload = [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => "Analyze this raw text extracted from an internship screenshot. Fix any OCR typos, extract the core details, and output 5 short, single-sentence interview questions:\n\n" . $extractedText]
+                        ]
+                    ]
+                ],
+                'generationConfig' => [
+                    'response_mime_type' => 'application/json',
+                    'response_schema' => [
+                        'type' => 'OBJECT',
+                        'properties' => [
+                            'company_name' => ['type' => 'STRING'],
+                            'company_email' => ['type' => 'STRING'],
+                            'position' => ['type' => 'STRING'],
+                            'location' => ['type' => 'STRING'],
+                            'duration' => ['type' => 'STRING'],
+                            'is_paid' => ['type' => 'BOOLEAN'],
+                            'interview_questions' => [
+                                'type' => 'ARRAY',
+                                'items' => ['type' => 'STRING']
+                            ]
+                        ],
+                        'required' => ['company_name', 'interview_questions'] // Optional: ensures they exist
+                    ]
+                ]
+            ];
+
+            try {
+                $geminiResponse = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->timeout(30)->post($geminiUrl, $payload);
+
+                // DEBUG: If it fails, log the actual error message from Google
+                if ($geminiResponse->failed()) {
+                    Log::error('Gemini API Error Body: ' . $geminiResponse->body());
                 }
-
-                return response()->json([
-                    'error' => $payload['message']
-                ], 502);
+            } catch (\Exception $e) {
+                Log::warning('Gemini API Connection Failed: ' . $e->getMessage());
+                return response()->json(['error' => 'AI processing service is unavailable. Please try again later.'], 503);
             }
 
-            //  Unpack the successfully parsed AI dictionary details layout
-            $aiData = $response->json();
-
-            $payload = [
-                'success' => true,
-                'message' => 'Internship details processed successfully!',
-                'data' => $aiData,
-            ];
-
-            if ($request->header('X-Inertia') || !$request->wantsJson()) {
-                $internships = $request->user()->internships()->with(['notes', 'timeline'])->latest()->get();
-                return Inertia::render('Internships/Index', [
-                    'internships' => $internships,
-                    'aiExtractedData' => $payload,
-                ]);
+            if ($geminiResponse->failed()) {
+                Log::warning('Gemini API Error: ' . $geminiResponse->body());
+                return response()->json(['error' => 'Failed to process extracted text with AI service.'], 500);
             }
 
-            // Return a successful data block back to the waiting frontend UI view layout
-            return response()->json($payload, 200);
-        } catch (\Exception $e) {
-            // Catch unforeseen application crash issues gracefully
-            Log::critical('Laravel Gateway System Crash: ' . $e->getMessage());
-            $payload = [
-                'success' => false,
-                'message' => 'An unexpected server error occurred while analyzing the image document.',
-                'data' => null,
-            ];
+            $geminiData = $geminiResponse->json();
+            $parsedData = $geminiData['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
-            if ($request->header('X-Inertia') || !$request->wantsJson()) {
-                $internships = $request->user()->internships()->with(['notes', 'timeline'])->latest()->get();
-                return Inertia::render('Internships/Index', [
-                    'internships' => $internships,
-                    'aiExtractedData' => $payload,
-                ]);
+            if (!$parsedData) {
+                Log::warning('No data returned from Gemini');
+                return response()->json(['error' => 'Failed to extract internship details from the image.'], 500);
             }
 
+            // Attempt to parse the structured JSON returned by Gemini
+            $decoded = json_decode($parsedData, true);
+
+            if (!is_array($decoded)) {
+                Log::warning('Gemini returned non-JSON payload');
+                return response()->json(['error' => 'AI returned an unexpected payload.'], 500);
+            }
+
+            // Persist interview questions if present
+            if (!empty($decoded['interview_questions']) && is_array($decoded['interview_questions'])) {
+                try {
+                    $company = $decoded['company_name'] ?? null;
+                    $position = $decoded['position'] ?? null;
+
+                    foreach ($decoded['interview_questions'] as $q) {
+                        if (empty($q)) {
+                            continue;
+                        }
+                        InterviewQuestion::create([
+                            'question' => (string) $q,
+                            'company_name' => $company,
+                            'position' => $position,
+                            'source' => 'ocr_gateway',
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed saving interview questions: ' . $e->getMessage());
+                }
+            }
+
+            // Return success with parsed data
             return response()->json([
-                'error' => $payload['message']
-            ], 500);
+                'success' => true,
+                'message' => 'Image processed successfully!',
+                'data' => $decoded
+            ], 200);
+        } catch (\Exception $e) {
+            Log::critical('Gateway Failure: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'An unexpected server error occurred. Please try again.'], 500);
         }
     }
 }
