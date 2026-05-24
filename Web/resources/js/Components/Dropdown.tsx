@@ -53,7 +53,7 @@ const Trigger = ({ children }: PropsWithChildren) => {
 const Content = ({
     align = 'right',
     width = '48',
-    contentClasses = 'py-1 bg-white dark:bg-gray-700',
+    contentClasses = 'py-1 bg-[var(--surface-strong)] backdrop-blur-xl',
     children,
 }: PropsWithChildren<{
     align?: 'left' | 'right';
@@ -83,7 +83,7 @@ const Content = ({
                 enter="transition ease-out duration-200"
                 enterFrom="opacity-0 scale-95"
                 enterTo="opacity-100 scale-100"
-                leave="transition ease-in duration-75"
+                leave="transition ease-out duration-100"
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
             >
@@ -93,7 +93,7 @@ const Content = ({
                 >
                     <div
                         className={
-                            `rounded-md ring-1 ring-black ring-opacity-5 ` +
+                            `rounded-2xl border border-[var(--line)] ring-1 ring-black/5 ` +
                             contentClasses
                         }
                     >
@@ -114,7 +114,7 @@ const DropdownLink = ({
         <Link
             {...props}
             className={
-                'block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800 ' +
+                'block w-full px-4 py-2 text-start text-sm leading-5 text-[var(--muted-strong)] transition duration-150 ease-out hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:text-[var(--text)] focus:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] focus:text-[var(--text)] focus:outline-none ' +
                 className
             }
         >

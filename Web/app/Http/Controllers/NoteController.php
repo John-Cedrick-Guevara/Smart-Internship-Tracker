@@ -27,6 +27,7 @@ class NoteController extends Controller
 
         $internship = $request->user()->internships()->findOrFail($request->route('internship'));
         $note = $internship->notes()->create($validated);
+        $internship->markActivity();
         // Handle Inertia requests
         if ($request->header('X-Inertia') || !$request->wantsJson()) {
             return redirect()->route('internships.list')->with('success', 'Note added successfully!');
@@ -39,6 +40,7 @@ class NoteController extends Controller
         $internship = $request->user()->internships()->findOrFail($request->route('internship'));
         $note = $internship->notes()->findOrFail($request->route('note'));
         $note->delete();
+        $internship->markActivity();
 
         // Handle Inertia requests
         if ($request->header('X-Inertia') || !$request->wantsJson()) {

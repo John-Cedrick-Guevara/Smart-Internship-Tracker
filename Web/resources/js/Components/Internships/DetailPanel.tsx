@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Internship, Note, TimelineEvent } from '../../types/internship';
 import { Clock, FileText, HelpCircle, Sparkles, Mail, Paperclip, ArrowLeft, ChevronRight } from 'lucide-react';
 import InterviewPrepTab from './InterviewPrepTab';
@@ -43,41 +43,12 @@ export default function DetailPanel({
     // Active detail tab ('hub' | 'timeline' | 'notes' | 'interview' | 'resume' | 'followup' | 'assets')
     const [activeTab, setActiveTab] = useState<'hub' | 'timeline' | 'notes' | 'interview' | 'resume' | 'followup' | 'assets'>('hub');
 
-    // Stats for Dashboard Hub
-    const [practicedCount, setPracticedCount] = useState(0);
-    const [resumeScore, setResumeScore] = useState<number | null>(null);
-    const [assetsMetrics, setAssetsMetrics] = useState({ total: 0, ready: 0 });
-
-    useEffect(() => {
-        if (!internship) return;
-        try {
-            const savedPracticed = localStorage.getItem(`internship_prep_practiced_${internship.id}`);
-            setPracticedCount(savedPracticed ? JSON.parse(savedPracticed).length : 0);
-        } catch (e) {
-            setPracticedCount(0);
-        }
-
-        try {
-            const savedResult = localStorage.getItem(`internship_resume_result_${internship.id}`);
-            setResumeScore(savedResult ? JSON.parse(savedResult).score : null);
-        } catch (e) {
-            setResumeScore(null);
-        }
-
-        try {
-            const savedAssets = localStorage.getItem(`internship_assets_${internship.id}`);
-            if (savedAssets) {
-                const parsed = JSON.parse(savedAssets);
-                const total = parsed.filter((a: any) => a.status !== 'not_added' || a.url).length;
-                const ready = parsed.filter((a: any) => a.status === 'ready' || a.status === 'submitted').length;
-                setAssetsMetrics({ total, ready });
-            } else {
-                setAssetsMetrics({ total: 0, ready: 0 });
-            }
-        } catch (e) {
-            setAssetsMetrics({ total: 0, ready: 0 });
-        }
-    }, [internship.id, activeTab]);
+    const practicedCount = internship.interview_questions.filter(question => question.is_practiced).length;
+    const resumeScore = internship.resume_match_result?.score ?? null;
+    const assetsMetrics = {
+        total: internship.assets.length,
+        ready: internship.assets.filter(asset => asset.status === 'ready' || asset.status === 'submitted').length,
+    };
 
     // Notes handlers
     const handleAddNoteSubmit = (e: React.FormEvent) => {
@@ -102,17 +73,17 @@ export default function DetailPanel({
     const getStatusBadgeColor = (status: string) => {
         switch (status) {
             case 'wishlist':
-                return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-250';
+                return 'bg-[color-mix(in_srgb,var(--muted)_10%,transparent)] text-[var(--muted-strong)]';
             case 'applied':
-                return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+                return 'bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)]';
             case 'interviewing':
-                return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+                return 'bg-[color-mix(in_srgb,var(--accent-soft)_14%,transparent)] text-[var(--accent-soft)]';
             case 'offer':
                 return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300';
             case 'rejected':
                 return 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-350';
             default:
-                return 'bg-gray-150 text-gray-700';
+                return 'bg-[color-mix(in_srgb,var(--muted)_10%,transparent)] text-[var(--muted-strong)]';
         }
     };
 
@@ -120,25 +91,25 @@ export default function DetailPanel({
         <div className="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
             {/* Dark Backdrop */}
             <div 
-                className="absolute inset-0 bg-gray-900/65 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in"
                 onClick={onClose}
             />
 
             <div className="absolute inset-y-0 right-0 pl-10 max-w-full flex">
                 {/* Main panel container */}
-                <div className="w-screen max-w-xl bg-white dark:bg-gray-900 shadow-2xl flex flex-col h-full border-l border-gray-200 dark:border-gray-800 transition-transform duration-300 animate-slide-in">
+                <div className="flex h-full w-screen max-w-xl flex-col border-l border-[var(--line)] bg-[var(--surface-strong)] shadow-2xl backdrop-blur-xl transition-transform duration-300 animate-slide-in">
                     
                     {/* Header */}
-                    <div className="p-6 border-b border-gray-150 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-950/20">
+                    <div className="border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface)_72%,transparent)] p-6">
                         <div className="flex items-start justify-between">
                             <div>
                                 <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide mb-2 ${getStatusBadgeColor(internship.status)}`}>
                                     {internship.status}
                                 </span>
-                                <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white leading-snug">
+                                <h2 className="text-2xl font-extrabold leading-snug text-[var(--text)]">
                                     {internship.position}
                                 </h2>
-                                <p className="text-base font-semibold text-indigo-650 dark:text-indigo-400 mt-1">
+                                <p className="mt-1 text-base font-semibold text-[var(--accent)]">
                                     {internship.company_name}
                                 </p>
                             </div>
@@ -146,7 +117,7 @@ export default function DetailPanel({
                             <div className="ml-3 flex h-7 items-center space-x-2">
                                 <button
                                     onClick={() => onEdit(internship)}
-                                    className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-850 dark:hover:text-white transition-colors"
+                                    className="rounded-lg p-1.5 text-[var(--muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:text-[var(--text)]"
                                     title="Edit"
                                 >
                                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

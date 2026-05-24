@@ -17,7 +17,7 @@ export default function Stats({ stats }: StatsProps) {
             title: 'Total Applications',
             value: stats.total,
             subtext: `${stats.applied} active submission${stats.applied === 1 ? '' : 's'}`,
-            gradient: 'from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500',
+            gradient: 'from-teal-600 to-amber-500 dark:from-teal-400 dark:to-amber-400',
             bgGlow: 'rgba(59, 130, 246, 0.15)',
             icon: (
                 <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +29,7 @@ export default function Stats({ stats }: StatsProps) {
             title: 'Interviews Scheduled',
             value: activeInterviews,
             subtext: activeInterviews > 0 ? 'Ready for the next round!' : 'Keep applying to lock them in',
-            gradient: 'from-purple-600 to-pink-600 dark:from-purple-500 dark:to-pink-500',
+            gradient: 'from-cyan-600 to-teal-500 dark:from-cyan-400 dark:to-teal-400',
             bgGlow: 'rgba(168, 85, 247, 0.15)',
             icon: (
                 <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +68,7 @@ export default function Stats({ stats }: StatsProps) {
             {cards.map((card, idx) => (
                 <div
                     key={idx}
-                    className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
+                    className="internship-card relative overflow-hidden p-6"
                     style={{
                         boxShadow: `0 10px 30px -15px ${card.bgGlow}, 0 1px 3px 0 rgba(0, 0, 0, 0.05)`
                     }}
@@ -80,19 +80,19 @@ export default function Stats({ stats }: StatsProps) {
 
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            <p className="text-sm font-medium text-[var(--muted)]">
                                 {card.title}
                             </p>
-                            <h3 className="mt-2 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                            <h3 className="mt-2 text-3xl font-extrabold tracking-tight text-[var(--text)]">
                                 {card.value}
                             </h3>
                         </div>
-                        <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg shadow-indigo-500/10`}>
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg shadow-[color-mix(in_srgb,var(--accent)_15%,transparent)]`}>
                             {card.icon}
                         </div>
                     </div>
 
-                    <div className="mt-4 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                    <div className="mt-4 flex items-center text-xs text-[var(--muted)]">
                         <span className="truncate">{card.subtext}</span>
                     </div>
                 </div>

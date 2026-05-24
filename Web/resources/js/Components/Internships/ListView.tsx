@@ -23,7 +23,7 @@ export default function ListView({
     const getStatusStyle = (status: InternshipStatus) => {
         switch (status) {
             case 'wishlist':
-                return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700';
+                return 'bg-[color-mix(in_srgb,var(--muted)_10%,transparent)] text-[var(--muted-strong)] border-[var(--line)]';
             case 'applied':
                 return 'bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border-blue-100 dark:border-blue-900/30';
             case 'interviewing':
@@ -54,19 +54,19 @@ export default function ListView({
     };
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="internship-surface overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full min-w-max border-collapse text-left">
                     <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50/70 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400">
+                        <tr className="border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface-strong)_76%,transparent)] text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
                             <th 
-                                className="cursor-pointer p-4 transition-colors hover:bg-gray-150 dark:hover:bg-gray-900 select-none"
+                                className="cursor-pointer select-none p-4 transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
                                 onClick={() => onSortChange('company_name')}
                             >
                                 Company {renderSortArrow('company_name')}
                             </th>
                             <th 
-                                className="cursor-pointer p-4 transition-colors hover:bg-gray-150 dark:hover:bg-gray-900 select-none"
+                                className="cursor-pointer select-none p-4 transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
                                 onClick={() => onSortChange('position')}
                             >
                                 Position {renderSortArrow('position')}
@@ -76,7 +76,7 @@ export default function ListView({
                             <th className="p-4 text-center">Status</th>
                             <th className="p-4 text-center">Compensation</th>
                             <th 
-                                className="cursor-pointer p-4 transition-colors hover:bg-gray-150 dark:hover:bg-gray-900 select-none"
+                                className="cursor-pointer select-none p-4 transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
                                 onClick={() => onSortChange('created_at')}
                             >
                                 Added {renderSortArrow('created_at')}
@@ -84,16 +84,16 @@ export default function ListView({
                             <th className="p-4 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 text-sm dark:divide-gray-800">
+                    <tbody className="divide-y divide-[var(--line)] text-sm">
                         {internships.length === 0 ? (
                             <tr>
-                                <td colSpan={8} className="p-12 text-center text-gray-500 dark:text-gray-400">
+                                <td colSpan={8} className="p-12 text-center text-[var(--muted)]">
                                     <div className="flex flex-col items-center justify-center">
                                         <svg className="mb-3 h-10 w-10 text-gray-300 dark:text-gray-650" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <p className="font-medium text-base text-gray-700 dark:text-gray-300">No applications found</p>
-                                        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Try adjusting your filters or search query.</p>
+                                        <p className="text-base font-medium text-[var(--muted-strong)]">No applications found</p>
+                                        <p className="mt-1 text-xs text-[var(--muted)]">Try adjusting your filters or search query.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -102,15 +102,15 @@ export default function ListView({
                                 <tr 
                                     key={item.id}
                                     onClick={() => onSelect(item.id)}
-                                    className="group cursor-pointer hover:bg-gray-50/55 dark:hover:bg-gray-950/20 transition-all duration-150"
+                                    className="group cursor-pointer transition-all duration-150 hover:bg-[color-mix(in_srgb,var(--accent)_7%,transparent)]"
                                 >
-                                    <td className="p-4 font-bold text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400 transition-colors">
+                                    <td className="p-4 font-bold text-[var(--text)] transition-colors group-hover:text-[var(--accent)]">
                                         {item.company_name}
                                     </td>
-                                    <td className="p-4 font-medium text-gray-700 dark:text-gray-300">
+                                    <td className="p-4 font-medium text-[var(--muted-strong)]">
                                         {item.position}
                                     </td>
-                                    <td className="p-4 text-gray-500 dark:text-gray-400">
+                                    <td className="p-4 text-[var(--muted)]">
                                         <div className="flex items-center">
                                             <svg className="mr-1.5 h-4 w-4 shrink-0 text-gray-450" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -119,7 +119,7 @@ export default function ListView({
                                             <span className="truncate max-w-[150px]">{item.location}</span>
                                         </div>
                                     </td>
-                                    <td className="p-4 text-gray-500 dark:text-gray-400 font-medium">
+                                    <td className="p-4 font-medium text-[var(--muted)]">
                                         {item.duration || 'N/A'}
                                     </td>
                                     <td className="p-4 text-center">
@@ -136,7 +136,7 @@ export default function ListView({
                                             {item.is_paid ? 'Paid' : 'Unpaid'}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-xs text-gray-450 dark:text-gray-500 font-medium">
+                                    <td className="p-4 text-xs font-medium text-[var(--muted)]">
                                         {new Date(item.created_at).toLocaleDateString(undefined, {
                                             month: 'short',
                                             day: 'numeric',
@@ -147,7 +147,7 @@ export default function ListView({
                                         <div className="flex justify-end space-x-1.5">
                                             <button
                                                 onClick={() => onEdit(item)}
-                                                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-indigo-650 dark:hover:bg-gray-800 dark:hover:text-indigo-400 transition-colors"
+                                                className="rounded-lg p-1.5 text-[var(--muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:text-[var(--accent)]"
                                                 title="Edit Details"
                                             >
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +160,7 @@ export default function ListView({
                                                         onDelete(item.id);
                                                     }
                                                 }}
-                                                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-650 dark:hover:bg-gray-800 dark:hover:text-red-400 transition-colors"
+                                                className="rounded-lg p-1.5 text-[var(--muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] hover:text-[var(--danger)]"
                                                 title="Delete Application"
                                             >
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

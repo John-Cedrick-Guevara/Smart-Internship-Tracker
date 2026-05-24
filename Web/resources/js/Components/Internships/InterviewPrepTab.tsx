@@ -1,270 +1,135 @@
-import React, { useState, useEffect } from 'react';
-import { Internship } from '../../types/internship';
-import { CheckCircle2, ChevronDown, ChevronUp, HelpCircle, PenTool, Sparkles, BookOpen } from 'lucide-react';
-
-interface Question {
-    id: string;
-    category: 'Technical' | 'Behavioral' | 'General';
-    question: string;
-    strategicTip: string;
-    talkingPoints: string[];
-}
+import React, { useEffect, useMemo, useState } from 'react';
+import { router } from '@inertiajs/react';
+import { CheckCircle2, ChevronDown, ChevronUp, HelpCircle, PenTool, Sparkles, BookOpen, Plus, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { InterviewQuestion, InterviewQuestionCategory, Internship } from '../../types/internship';
 
 interface InterviewPrepTabProps {
     internship: Internship;
 }
 
-const FRONTEND_QUESTIONS: Question[] = [
-    {
-        id: 'fe_1',
-        category: 'Technical',
-        question: 'How do you optimize the performance of a React application?',
-        strategicTip: 'Explain rendering cycles, memoization, and network loading assets.',
-        talkingPoints: [
-            'Mention memoization techniques using React.memo, useMemo, and useCallback to avoid unneeded renders.',
-            'Discuss code-splitting, lazy loading (React.lazy, Suspense), and dynamic imports to reduce bundle sizes.',
-            'Explain rendering optimization: virtualization for long lists, using appropriate key props, and state colocation.',
-            'Highlight image optimization, lazy loading non-critical resources, and asset compression/CDN delivery.'
-        ]
-    },
-    {
-        id: 'fe_2',
-        category: 'Technical',
-        question: 'What is your strategy for maintaining consistent state across complex React layouts?',
-        strategicTip: 'Contrast local state, context propagation, and global state libraries.',
-        talkingPoints: [
-            'Start with local state (useState, useReducer) and state hoisting where appropriate.',
-            'Explain Context API for standard compound components and global layouts without excessive prop drilling.',
-            'Discuss global state stores (Redux, Zustand, Recoil) for cross-page communications and complex server data caching.',
-            'Mention data-fetching libraries like TanStack Query (React Query) for managing async server states with cache invalidation.'
-        ]
-    },
-    {
-        id: 'fe_3',
-        category: 'Behavioral',
-        question: 'Tell me about a time you had to balance a gorgeous design mockup with performance/development constraints.',
-        strategicTip: 'Showcase cross-functional collaborative communication and compromise.',
-        talkingPoints: [
-            'Detail the design spec: complex animations, large asset payloads, or heavy layout components.',
-            'Explain the trade-offs discussed with designers: e.g. replacing complex calculations with responsive CSS layouts.',
-            'Focus on outcomes: maintaining high visual fidelity while keeping core vitals (LCP, FID) at optimal premium scores.'
-        ]
-    },
-    {
-        id: 'fe_4',
-        category: 'General',
-        question: 'Why do you want to join our frontend team for this internship?',
-        strategicTip: 'Research the company product or site specifically, highlighting their UI/UX decisions.',
-        talkingPoints: [
-            'Reference specific features of their website or web application that feel refined or premium.',
-            'Align your personal learning goals (e.g. mastering accessible forms, high-concurrency UI dashboards) with their tech stack.',
-            'Express excitement for learning from their senior engineers and contributing to production design systems.'
-        ]
-    }
-];
-
-const BACKEND_QUESTIONS: Question[] = [
-    {
-        id: 'be_1',
-        category: 'Technical',
-        question: 'How would you design a high-throughput, secure RESTful API in PHP/Laravel?',
-        strategicTip: 'Focus on request lifecycle, middleware, security, and response caching.',
-        talkingPoints: [
-            'Discuss security: JWT/Sanctum authentication, CORS, rate limiting, and request validation.',
-            'Detail caching mechanisms: Redis or Memcached integration for high-frequency queries.',
-            'Mention database optimization: Eager loading (preventing N+1 query issue) and indexing.',
-            'Explain decoupling layers: Controllers delegating core logic to Service classes and API Resources for formatting.'
-        ]
-    },
-    {
-        id: 'be_2',
-        category: 'Technical',
-        question: 'Explain the difference between SQL and NoSQL databases, and how you choose between them.',
-        strategicTip: 'Focus on schema flexibility, relationship models, scaling capabilities, and transactions.',
-        talkingPoints: [
-            'SQL (Relational): Structured schemas, relational integrity, ACID compliance, good for complex joins (e.g., transactional data).',
-            'NoSQL (Non-Relational): Dynamic schemas, horizontal scaling, document/key-value storage, good for high-throughput reads (e.g., logs, sessions).',
-            'Decision framework: Choose SQL when relational data is dense; choose NoSQL for unstructured, rapid-growth data feeds.'
-        ]
-    },
-    {
-        id: 'be_3',
-        category: 'Behavioral',
-        question: 'Describe a time when you had to debug a severe, silent performance bottleneck in production.',
-        strategicTip: 'Focus on your systematic diagnostic process and analytical thinking.',
-        talkingPoints: [
-            'Explain how you discovered the bottleneck: APM logs, database slow queries, or customer report.',
-            'Describe diagnostic steps: Isolated queries, measured server resource utilization, and checked memory usage.',
-            'Highlight resolution: Added missing database indexes, optimized heavy loops, or refactored background queues.'
-        ]
-    },
-    {
-        id: 'be_4',
-        category: 'General',
-        question: 'What trends or frameworks in backend development are you most excited to explore here?',
-        strategicTip: 'Connect your interests to their current projects, database scaling, or serverless structures.',
-        talkingPoints: [
-            'Mention serverless computing, API gateways, or containerization with Docker/Kubernetes.',
-            'Express interest in database optimizations, distributed systems, or messaging queues (RabbitMQ, Kafka).',
-            'Link these trends back to their scale challenges and how you can support their engineering pipelines.'
-        ]
-    }
-];
-
-const PM_QUESTIONS: Question[] = [
-    {
-        id: 'pm_1',
-        category: 'Technical',
-        question: 'How do you prioritize a product backlog with multiple stakeholders requesting features?',
-        strategicTip: 'Discuss prioritization frameworks (RICE, MoSCoW) and business metrics alignment.',
-        talkingPoints: [
-            'Define features based on Reach, Impact, Confidence, and Effort (RICE score).',
-            'Explain how you manage stakeholder alignment through transparency, logic, and shared product goals.',
-            'Show how you tie product development milestones back to high-level OKRs and business KPIs.'
-        ]
-    },
-    {
-        id: 'pm_2',
-        category: 'Behavioral',
-        question: 'Tell me about a time a product launch failed or missed its core metrics, and what you learned.',
-        strategicTip: 'Highlight resilience, analytical retrospectives, and customer feedback mechanisms.',
-        talkingPoints: [
-            'Provide context on the product concept, what the launch goals were, and where it fell short.',
-            'Describe how you ran a blame-free post-mortem to analyze user drops, loading friction, or marketing misalignment.',
-            'Share the adjustments made: post-launch hotfixes, design updates, or better telemetry loops for subsequent features.'
-        ]
-    },
-    {
-        id: 'pm_3',
-        category: 'General',
-        question: 'How do you translate complex technical barriers into business trade-offs for executives?',
-        strategicTip: 'Explain user-impact focusing, risk mitigation, and scheduling cost considerations.',
-        talkingPoints: [
-            'Describe how you work closely with lead engineers to fully grasp backend or architectural limitations.',
-            'Frame the technical problem in terms of delay risk, financial overhead, or user retention metrics.',
-            'Offer constructive paths: MVP releases, staging rollout phases, or temporary workarounds.'
-        ]
-    }
-];
-
-const DEFAULT_QUESTIONS: Question[] = [
-    {
-        id: 'gen_1',
-        category: 'Behavioral',
-        question: 'Tell me about a challenging technical or academic project and how you overcame obstacles.',
-        strategicTip: 'Use the STAR method (Situation, Task, Action, Result) with quantified impacts.',
-        talkingPoints: [
-            'Situation: Outline the context of the team project or complex software engineering course assignment.',
-            'Task: Explain the core challenge (e.g. deadline pressure, ambiguous API requirements, or performance bugs).',
-            'Action: Detail your unique contributions: systematic research, pair programming, or algorithmic optimizations.',
-            'Result: Highlight concrete metrics: compiled 2x faster, scored top of the class, or delivered ahead of schedule.'
-        ]
-    },
-    {
-        id: 'gen_2',
-        category: 'Behavioral',
-        question: 'How do you handle working with a team member who has a completely different working style or opinion?',
-        strategicTip: 'Focus on empathy, active listening, and logical compromise.',
-        talkingPoints: [
-            'Acknowledge that diverse opinions build healthier products and robust software architectures.',
-            'Explain your method: listening first to identify core technical disagreements or timeline goals.',
-            'Detail the outcome: standardizing API specifications or splitting responsibilities based on individual strengths.'
-        ]
-    },
-    {
-        id: 'gen_3',
-        category: 'Technical',
-        question: 'Explain a technical concept you learned recently to someone without an engineering background.',
-        strategicTip: 'Use clear, intuitive analogies and avoid jargon to show strong communication.',
-        talkingPoints: [
-            'Select a concept: e.g. APIs (like restaurant waiters), Caching (like keeping most-used books on the desk), or Databases.',
-            'Walk through the analogy, highlighting how it maps directly to physical human experiences.',
-            'Explain why clear communication is essential for cross-functional alignment in technical teams.'
-        ]
-    },
-    {
-        id: 'gen_4',
-        category: 'General',
-        question: 'What is your primary goal for this internship, and how can we help you achieve it?',
-        strategicTip: 'Demonstrate initiative, ambition, and a willingness to absorb team feedback.',
-        talkingPoints: [
-            'Define 1-2 core skills you want to master (e.g., test-driven development, database design, agile project ownership).',
-            'Express a desire to understand corporate software development patterns and scale operations.',
-            'Confirm your willingness to take on feedback actively and iterate on code quality.'
-        ]
-    }
-];
+const CATEGORY_LABELS: InterviewQuestionCategory[] = ['Technical', 'Behavioral', 'General'];
 
 export default function InterviewPrepTab({ internship }: InterviewPrepTabProps) {
-    const [questions, setQuestions] = useState<Question[]>(DEFAULT_QUESTIONS);
-    const [expandedQId, setExpandedQId] = useState<string | null>(null);
-    const [practicedIds, setPracticedIds] = useState<string[]>([]);
-    const [notes, setNotes] = useState<Record<string, string>>({});
-    const [saveStatus, setSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved'>>({});
+    const [questions, setQuestions] = useState<InterviewQuestion[]>(internship.interview_questions || []);
+    const [expandedQId, setExpandedQId] = useState<number | null>(null);
+    const [draftNotes, setDraftNotes] = useState<Record<number, string>>({});
+    const [showCreate, setShowCreate] = useState(false);
+    const [newQuestion, setNewQuestion] = useState('');
+    const [newCategory, setNewCategory] = useState<InterviewQuestionCategory>('General');
+    const [newTip, setNewTip] = useState('');
+    const [newTalkingPoints, setNewTalkingPoints] = useState('');
 
-    // 1. Select appropriate questions based on the role title
     useEffect(() => {
-        const title = internship.position.toLowerCase();
-        if (title.includes('front') || title.includes('react') || title.includes('ui') || title.includes('ux') || title.includes('design') || title.includes('client')) {
-            setQuestions(FRONTEND_QUESTIONS);
-        } else if (title.includes('back') || title.includes('laravel') || title.includes('php') || title.includes('api') || title.includes('server') || title.includes('database') || title.includes('sql')) {
-            setQuestions(BACKEND_QUESTIONS);
-        } else if (title.includes('product') || title.includes('project') || title.includes('manager') || title.includes('scrum') || title.includes('agile')) {
-            setQuestions(PM_QUESTIONS);
-        } else {
-            setQuestions(DEFAULT_QUESTIONS);
-        }
-    }, [internship.position]);
-
-    // 2. Load practiced states and notes from localStorage on mount or internship change
-    useEffect(() => {
-        try {
-            const savedPracticed = localStorage.getItem(`internship_prep_practiced_${internship.id}`);
-            if (savedPracticed) {
-                setPracticedIds(JSON.parse(savedPracticed));
-            } else {
-                setPracticedIds([]);
-            }
-
-            const savedNotes = localStorage.getItem(`internship_prep_notes_${internship.id}`);
-            if (savedNotes) {
-                setNotes(JSON.parse(savedNotes));
-            } else {
-                setNotes({});
-            }
-        } catch (e) {
-            console.error('Failed to load localStorage prep data:', e);
-        }
+        setQuestions(internship.interview_questions || []);
         setExpandedQId(null);
-    }, [internship.id]);
+        setDraftNotes({});
+        setShowCreate(false);
+        setNewQuestion('');
+        setNewCategory('General');
+        setNewTip('');
+        setNewTalkingPoints('');
+    }, [internship.id, internship.interview_questions]);
 
-    const togglePracticed = (qId: string) => {
-        const updated = practicedIds.includes(qId)
-            ? practicedIds.filter(id => id !== qId)
-            : [...practicedIds, qId];
-        
-        setPracticedIds(updated);
-        localStorage.setItem(`internship_prep_practiced_${internship.id}`, JSON.stringify(updated));
+    const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+    const reloadInternships = () => {
+        router.reload();
     };
 
-    const handleNoteChange = (qId: string, val: string) => {
-        setNotes(prev => ({ ...prev, [qId]: val }));
-        setSaveStatus(prev => ({ ...prev, [qId]: 'saving' }));
+    const saveQuestion = async (question: InterviewQuestion, updates: Partial<InterviewQuestion>) => {
+        const response = await fetch(route('interview_questions.update', [internship.id, question.id]), {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken(),
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updates),
+        });
 
-        // Debounced or simple immediate localStorage update
-        const updatedNotes = { ...notes, [qId]: val };
-        localStorage.setItem(`internship_prep_notes_${internship.id}`, JSON.stringify(updatedNotes));
+        if (!response.ok) {
+            toast.error('Failed to save interview question.');
+            return;
+        }
 
-        // Simulate a smooth auto-save effect
-        setTimeout(() => {
-            setSaveStatus(prev => ({ ...prev, [qId]: 'saved' }));
-            setTimeout(() => {
-                setSaveStatus(prev => ({ ...prev, [qId]: 'idle' }));
-            }, 1000);
-        }, 600);
+        reloadInternships();
     };
 
-    const getCategoryBadgeColor = (category: Question['category']) => {
+    const togglePracticed = async (question: InterviewQuestion) => {
+        setQuestions((prev) =>
+            prev.map((item) =>
+                item.id === question.id ? { ...item, is_practiced: !item.is_practiced } : item,
+            ),
+        );
+        await saveQuestion(question, { is_practiced: !question.is_practiced });
+    };
+
+    const handleNoteBlur = async (question: InterviewQuestion) => {
+        const next = draftNotes[question.id] ?? question.answer_notes ?? '';
+        if (next === (question.answer_notes ?? '')) return;
+        await saveQuestion(question, { answer_notes: next || null });
+    };
+
+    const handleCreateQuestion = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newQuestion.trim()) return;
+
+        const response = await fetch(route('interview_questions.store', internship.id), {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken(),
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question: newQuestion.trim(),
+                category: newCategory,
+                strategic_tip: newTip.trim() || null,
+                talking_points: newTalkingPoints
+                    .split('\n')
+                    .map((point) => point.trim())
+                    .filter(Boolean),
+                source: 'manual',
+            }),
+        });
+
+        if (!response.ok) {
+            toast.error('Failed to add question.');
+            return;
+        }
+
+        toast.success('Question added to this application.');
+        reloadInternships();
+    };
+
+    const deleteQuestion = async (question: InterviewQuestion) => {
+        if (!confirm('Delete this question?')) return;
+
+        const response = await fetch(route('interview_questions.delete', [internship.id, question.id]), {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken(),
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok && response.status !== 204) {
+            toast.error('Failed to delete question.');
+            return;
+        }
+
+        toast.success('Question removed.');
+        reloadInternships();
+    };
+
+    const percentComplete = useMemo(() => {
+        return questions.length > 0
+            ? Math.round((questions.filter((q) => q.is_practiced).length / questions.length) * 100)
+            : 0;
+    }, [questions]);
+
+    const getCategoryBadgeColor = (category: InterviewQuestionCategory) => {
         switch (category) {
             case 'Technical':
                 return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/40';
@@ -275,120 +140,178 @@ export default function InterviewPrepTab({ internship }: InterviewPrepTabProps) 
         }
     };
 
-    const percentComplete = questions.length > 0 
-        ? Math.round((questions.filter(q => practicedIds.includes(q.id)).length / questions.length) * 100)
-        : 0;
-
     return (
         <div className="space-y-6 animate-fade-in text-gray-800 dark:text-gray-200">
-            {/* Header / Stats Panel */}
             <div className="rounded-xl border border-gray-150 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-950/15 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                     <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
                         <Sparkles className="h-5 w-5 animate-pulse" />
                     </div>
                     <div>
-                        <h4 className="text-xs uppercase font-extrabold tracking-wider text-gray-400">Preparation Readiness</h4>
+                        <h4 className="text-xs uppercase font-extrabold tracking-wider text-gray-400">Preparation readiness</h4>
                         <p className="text-sm font-bold text-gray-900 dark:text-white mt-0.5">
-                            {questions.filter(q => practicedIds.includes(q.id)).length} of {questions.length} Questions Mastered
+                            {questions.filter((q) => q.is_practiced).length} of {questions.length} questions practiced
                         </p>
                     </div>
                 </div>
-                
+
                 <div className="flex flex-col items-end">
-                    <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">{percentComplete}% Complete</span>
+                    <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">{percentComplete}% complete</span>
                     <div className="w-24 bg-gray-200 dark:bg-gray-800 rounded-full h-1.5 mt-1 overflow-hidden">
-                        <div 
-                            className="bg-indigo-600 dark:bg-indigo-400 h-1.5 rounded-full transition-all duration-500" 
-                            style={{ width: `${percentComplete}%` }}
-                        />
+                        <div className="bg-indigo-600 dark:bg-indigo-400 h-1.5 rounded-full transition-all duration-500" style={{ width: `${percentComplete}%` }} />
                     </div>
                 </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center">
                     <BookOpen className="h-3.5 w-3.5 mr-1 text-gray-400" />
-                    Role-Aligned Questions: <span className="text-indigo-600 dark:text-indigo-400 ml-1 italic font-semibold">{internship.position}</span>
+                    Role-aligned questions for <span className="text-indigo-600 dark:text-indigo-400 ml-1 italic font-semibold">{internship.position}</span>
                 </h3>
+                <button
+                    onClick={() => setShowCreate((prev) => !prev)}
+                    className="inline-flex items-center text-xs font-semibold text-indigo-650 dark:text-indigo-400 hover:text-indigo-755"
+                >
+                    <Plus className="h-4 w-4 mr-0.5" />
+                    Add question
+                </button>
+            </div>
 
-                <div className="space-y-3.5">
-                    {questions.map((q) => {
-                        const isExpanded = expandedQId === q.id;
-                        const isPracticed = practicedIds.includes(q.id);
-                        const userNote = notes[q.id] || '';
-                        const qSave = saveStatus[q.id] || 'idle';
+            {showCreate && (
+                <form onSubmit={handleCreateQuestion} className="rounded-xl border border-indigo-150 p-4 bg-indigo-50/15 dark:border-indigo-900/40 dark:bg-indigo-950/10 space-y-3.5">
+                    <div>
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase">Question</label>
+                        <input
+                            type="text"
+                            required
+                            value={newQuestion}
+                            onChange={(e) => setNewQuestion(e.target.value)}
+                            className="mt-1 block w-full rounded-lg border-gray-250 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
+                            placeholder="Add a question for this application"
+                        />
+                    </div>
 
-                        return (
-                            <div 
-                                key={q.id} 
-                                className={`rounded-xl border transition-all duration-200 ${
-                                    isExpanded 
-                                        ? 'border-indigo-300 dark:border-indigo-700 bg-indigo-50/5 dark:bg-indigo-950/5 ring-1 ring-indigo-350/10' 
-                                        : 'border-gray-150 dark:border-gray-850 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900/50'
-                                }`}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase">Category</label>
+                            <select
+                                value={newCategory}
+                                onChange={(e) => setNewCategory(e.target.value as InterviewQuestionCategory)}
+                                className="mt-1 block w-full rounded-lg border-gray-250 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
                             >
-                                {/* Collapsed Top Bar */}
-                                <div className="flex items-center justify-between p-4 cursor-pointer select-none" onClick={() => setExpandedQId(isExpanded ? null : q.id)}>
-                                    <div className="flex items-center space-x-3 min-w-0 flex-1">
-                                        <button 
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                togglePracticed(q.id);
-                                            }}
-                                            className={`flex-shrink-0 focus:outline-none transition-colors ${
-                                                isPracticed 
-                                                    ? 'text-emerald-500 dark:text-emerald-450 hover:text-emerald-600' 
-                                                    : 'text-gray-300 dark:text-gray-600 hover:text-gray-400'
-                                            }`}
-                                            title={isPracticed ? 'Mark as unpracticed' : 'Mark as practiced'}
-                                        >
-                                            <CheckCircle2 className={`h-5 w-5 ${isPracticed ? 'fill-emerald-50/50 dark:fill-emerald-950/20' : ''}`} />
-                                        </button>
+                                {CATEGORY_LABELS.map((category) => (
+                                    <option key={category} value={category}>
+                                        {category}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                                        <div className="min-w-0">
-                                            <div className="flex items-center space-x-2">
-                                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${getCategoryBadgeColor(q.category)}`}>
-                                                    {q.category}
-                                                </span>
-                                                {isPracticed && (
-                                                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">Practiced</span>
-                                                )}
-                                            </div>
-                                            <p className={`text-xs font-bold mt-1.5 text-gray-900 dark:text-white leading-relaxed ${isPracticed ? 'line-through text-gray-450 dark:text-gray-500 font-medium' : ''}`}>
-                                                {q.question}
-                                            </p>
+                        <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase">Strategic tip</label>
+                            <input
+                                type="text"
+                                value={newTip}
+                                onChange={(e) => setNewTip(e.target.value)}
+                                className="mt-1 block w-full rounded-lg border-gray-250 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase">Talking points, one per line</label>
+                        <textarea
+                            rows={3}
+                            value={newTalkingPoints}
+                            onChange={(e) => setNewTalkingPoints(e.target.value)}
+                            className="mt-1 block w-full rounded-lg border-gray-250 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
+                        />
+                    </div>
+
+                    <div className="flex justify-end space-x-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowCreate(false)}
+                            className="rounded-md px-3 py-1.5 text-[11px] font-semibold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-850"
+                        >
+                            Cancel
+                        </button>
+                        <button type="submit" className="rounded-md bg-indigo-650 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm hover:bg-indigo-755">
+                            Save question
+                        </button>
+                    </div>
+                </form>
+            )}
+
+            <div className="space-y-3.5">
+                {questions.map((question) => {
+                    const isExpanded = expandedQId === question.id;
+                    const userNote = draftNotes[question.id] ?? question.answer_notes ?? '';
+
+                    return (
+                        <div
+                            key={question.id}
+                            className={`rounded-xl border transition-all duration-200 ${
+                                isExpanded
+                                    ? 'border-indigo-300 dark:border-indigo-700 bg-indigo-50/5 dark:bg-indigo-950/5 ring-1 ring-indigo-350/10'
+                                    : 'border-gray-150 dark:border-gray-850 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900/50'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between p-4 cursor-pointer select-none" onClick={() => setExpandedQId(isExpanded ? null : question.id)}>
+                                <div className="flex items-center space-x-3 min-w-0 flex-1">
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            togglePracticed(question);
+                                        }}
+                                        className={`flex-shrink-0 focus:outline-none transition-colors ${
+                                            question.is_practiced
+                                                ? 'text-emerald-500 dark:text-emerald-450 hover:text-emerald-600'
+                                                : 'text-gray-300 dark:text-gray-600 hover:text-gray-400'
+                                        }`}
+                                        title={question.is_practiced ? 'Mark as unpracticed' : 'Mark as practiced'}
+                                    >
+                                        <CheckCircle2 className={`h-5 w-5 ${question.is_practiced ? 'fill-emerald-50/50 dark:fill-emerald-950/20' : ''}`} />
+                                    </button>
+
+                                    <div className="min-w-0">
+                                        <div className="flex items-center space-x-2">
+                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${getCategoryBadgeColor(question.category)}`}>
+                                                {question.category}
+                                            </span>
+                                            {question.is_practiced && <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">Practiced</span>}
                                         </div>
-                                    </div>
-
-                                    <div className="ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                        <p className={`text-xs font-bold mt-1.5 text-gray-900 dark:text-white leading-relaxed ${question.is_practiced ? 'line-through text-gray-450 dark:text-gray-500 font-medium' : ''}`}>
+                                            {question.question}
+                                        </p>
                                     </div>
                                 </div>
 
-                                {/* Expanded strategic detail block */}
-                                {isExpanded && (
-                                    <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-850 pt-3 space-y-4 animate-fade-in">
-                                        
-                                        {/* Strategic tips */}
-                                        <div className="rounded-lg bg-amber-50/40 border border-amber-100 p-3 dark:bg-amber-950/10 dark:border-amber-900/30">
-                                            <div className="flex items-start space-x-2">
-                                                <HelpCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                                                <div>
-                                                    <span className="text-[10px] uppercase font-extrabold tracking-wider text-amber-700 dark:text-amber-400">Strategic Response Angle</span>
-                                                    <p className="text-xs text-gray-700 dark:text-gray-300 mt-0.5 leading-relaxed font-semibold">
-                                                        {q.strategicTip}
-                                                    </p>
-                                                </div>
+                                <div className="ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                    {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                </div>
+                            </div>
+
+                            {isExpanded && (
+                                <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-850 pt-3 space-y-4 animate-fade-in">
+                                    <div className="rounded-lg bg-amber-50/40 border border-amber-100 p-3 dark:bg-amber-950/10 dark:border-amber-900/30">
+                                        <div className="flex items-start space-x-2">
+                                            <HelpCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                                            <div>
+                                                <span className="text-[10px] uppercase font-extrabold tracking-wider text-amber-700 dark:text-amber-400">Strategic response angle</span>
+                                                <p className="text-xs text-gray-700 dark:text-gray-300 mt-0.5 leading-relaxed font-semibold">
+                                                    {question.strategic_tip || 'Use this space to outline how you would answer the question clearly and directly.'}
+                                                </p>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        {/* Bullet strategic outline */}
+                                    {Array.isArray(question.talking_points) && question.talking_points.length > 0 && (
                                         <div>
-                                            <span className="text-[10px] uppercase font-extrabold tracking-wider text-gray-400 block mb-2">Key Discussion Points</span>
+                                            <span className="text-[10px] uppercase font-extrabold tracking-wider text-gray-400 block mb-2">Key discussion points</span>
                                             <ul className="space-y-1.5">
-                                                {q.talkingPoints.map((point, index) => (
+                                                {question.talking_points.map((point, index) => (
                                                     <li key={index} className="flex items-start space-x-2 text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
                                                         <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 dark:bg-indigo-400 mt-1.5 shrink-0" />
                                                         <span>{point}</span>
@@ -396,36 +319,44 @@ export default function InterviewPrepTab({ internship }: InterviewPrepTabProps) 
                                                 ))}
                                             </ul>
                                         </div>
+                                    )}
 
-                                        {/* Interactive notepad workspace */}
-                                        <div className="space-y-1.5">
-                                            <div className="flex items-center justify-between">
-                                                <label className="text-[10px] uppercase font-extrabold tracking-wider text-gray-450 flex items-center">
-                                                    <PenTool className="h-3 w-3 mr-1 text-indigo-500" />
-                                                    Your Answer Scratchpad
-                                                </label>
-                                                
-                                                <span className="text-[9px] font-bold text-gray-450 tracking-wide">
-                                                    {qSave === 'saving' && <span className="text-indigo-550 dark:text-indigo-400 animate-pulse">Auto-saving...</span>}
-                                                    {qSave === 'saved' && <span className="text-emerald-600 dark:text-emerald-450">Saved!</span>}
-                                                    {qSave === 'idle' && `${userNote.length} characters`}
-                                                </span>
-                                            </div>
-
-                                            <textarea
-                                                className="w-full text-xs rounded-lg border border-gray-250 bg-gray-50/50 p-2.5 shadow-inner focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
-                                                placeholder="Draft your key anecdotes, STAR bullets, or conceptual notes here. Auto-saves locally..."
-                                                rows={4}
-                                                value={userNote}
-                                                onChange={(e) => handleNoteChange(q.id, e.target.value)}
-                                            />
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-[10px] uppercase font-extrabold tracking-wider text-gray-450 flex items-center">
+                                                <PenTool className="h-3 w-3 mr-1 text-indigo-500" />
+                                                Your answer scratchpad
+                                            </label>
+                                            <span className="text-[9px] font-bold text-gray-450 tracking-wide">
+                                                {userNote.length} characters
+                                            </span>
                                         </div>
+
+                                        <textarea
+                                            className="w-full text-xs rounded-lg border border-gray-250 bg-gray-50/50 p-2.5 shadow-inner focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
+                                            placeholder="Draft your STAR bullets or notes here."
+                                            rows={4}
+                                            value={userNote}
+                                            onChange={(e) => setDraftNotes((prev) => ({ ...prev, [question.id]: e.target.value }))}
+                                            onBlur={() => handleNoteBlur(question)}
+                                        />
                                     </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+
+                                    <div className="flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => deleteQuestion(question)}
+                                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:text-red-700"
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                            Delete question
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

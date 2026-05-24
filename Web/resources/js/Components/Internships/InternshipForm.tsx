@@ -49,7 +49,7 @@ export default function InternshipForm({
             <div className="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
                 {/* Backdrop overlay */}
                 <div
-                    className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity duration-300"
+                    className="fixed inset-0 bg-black/55 backdrop-blur-sm transition-opacity duration-300"
                     onClick={onClose}
                 />
 
@@ -62,12 +62,12 @@ export default function InternshipForm({
                 </span>
 
                 {/* Modal Container */}
-                <div className="relative inline-block transform overflow-hidden rounded-2xl bg-white text-left align-bottom shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle dark:bg-gray-900 border border-gray-200 dark:border-gray-800 animate-scale-in">
+                <div className="auth-card relative inline-block transform overflow-hidden text-left align-bottom transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle animate-scale-in">
                     {/* Header */}
-                    <div className="bg-gray-50/50 px-6 py-4 border-b border-gray-250/60 dark:bg-gray-950/20 dark:border-gray-800/80">
+                    <div className="border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface-strong)_72%,transparent)] px-6 py-4">
                         <div className="flex items-center justify-between">
                             <h3
-                                className="text-lg font-bold text-gray-900 dark:text-white"
+                                className="text-lg font-bold text-[var(--text)]"
                                 id="modal-title"
                             >
                                 {internship
@@ -76,7 +76,7 @@ export default function InternshipForm({
                             </h3>
                             <button
                                 type="button"
-                                className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                className="rounded-lg p-1 text-[var(--muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:text-[var(--text)]"
                                 onClick={onClose}
                             >
                                 <span className="sr-only">Close</span>
@@ -107,7 +107,7 @@ export default function InternshipForm({
                                 <TabsTrigger value="ai-scan">
                                     <span className="flex items-center space-x-1">
                                         <svg
-                                            className="h-3.5 w-3.5 text-indigo-550 dark:text-indigo-400"
+                                            className="h-3.5 w-3.5 text-[var(--accent)]"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"

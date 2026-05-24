@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     Internship,
     InternshipStatus,
@@ -9,12 +9,31 @@ import {
 import { router } from "@inertiajs/react";
 import { toast } from "sonner";
 
+type InternshipWritePayload = Omit<
+    Internship,
+    | "id"
+    | "user_id"
+    | "created_at"
+    | "updated_at"
+    | "last_activity_at"
+    | "resume_match_result"
+    | "resume_match_analyzed_at"
+    | "notes"
+    | "timeline"
+    | "interview_questions"
+    | "assets"
+>;
+
 // Premium high-fidelity mock data to make the UI look stellar immediately
 
 export function useInternships(initialInternships: Internship[]) {
     // 1. Core State
     const [internships, setInternships] =
         useState<Internship[]>(initialInternships);
+
+    useEffect(() => {
+        setInternships(initialInternships);
+    }, [initialInternships]);
 
     // 2. Filter, Search and Sorting States
     const [searchQuery, setSearchQuery] = useState("");
@@ -117,36 +136,32 @@ export function useInternships(initialInternships: Internship[]) {
      * Creates a new internship.
      * Backend hook: POST /internships
      */
-    const addInternship = async (
-        data: Omit<
-            Internship,
-            | "id"
-            | "user_id"
-            | "created_at"
-            | "updated_at"
-            | "notes"
-            | "timeline"
-        >,
-    ) => {
+    const addInternship = async (data: InternshipWritePayload) => {
         // [Inertia / API integration placeholder]
         // Example: router.post(route('internships.add'), data, { onSuccess: () => ... })
 
+        const newId = Date.now();
         const newInternship: Internship = {
             ...data,
-            id: Date.now(), // Local simulated ID
+            id: newId, // Local simulated ID
             user_id: 1,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            last_activity_at: new Date().toISOString(),
+            resume_match_result: null,
+            resume_match_analyzed_at: null,
             notes: [],
             timeline: [
                 {
-                    id: Date.now() + 1,
-                    internship_id: Date.now(),
+                    id: newId + 1,
+                    internship_id: newId,
                     date: new Date().toISOString().split("T")[0],
                     event: `Saved as ${data.status.toUpperCase()}`,
                     reminder: null,
                 },
             ],
+            interview_questions: [],
+            assets: [],
         };
 
         setInternships((prev) => [newInternship, ...prev]);
@@ -168,9 +183,7 @@ export function useInternships(initialInternships: Internship[]) {
      */
     const updateInternship = async (
         id: number,
-        data: Partial<
-            Omit<Internship, "id" | "user_id" | "notes" | "timeline">
-        >,
+        data: Partial<InternshipWritePayload>,
     ) => {
         // [Inertia / API integration placeholder]
         // Example: router.put(route('internships.update', id), data)
@@ -184,8 +197,6 @@ export function useInternships(initialInternships: Internship[]) {
         );
         setIsFormOpen(false);
         setEditingInternship(null);
-        console.log("object");
-
         router.put(route("internships.update", id), data, {
             onSuccess: () => {
                 toast.success("Internship updated successfully!");

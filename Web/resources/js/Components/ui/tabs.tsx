@@ -8,14 +8,14 @@ interface TabsContextProps {
 const TabsContext = createContext<TabsContextProps | null>(null);
 
 export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
-    defaultValue: string;
+    defaultValue?: string;
     value?: string;
     onValueChange?: (value: string) => void;
 }
 
 export const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
     ({ defaultValue, value, onValueChange, children, ...props }, ref) => {
-        const [activeTab, setActiveTab] = useState(defaultValue);
+        const [activeTab, setActiveTab] = useState(defaultValue ?? value ?? '');
 
         useEffect(() => {
             if (value !== undefined) {
@@ -50,7 +50,7 @@ export const TabsList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
             <div
                 ref={ref}
                 className={
-                    'inline-flex h-10 items-center justify-center rounded-xl bg-gray-100 p-1 text-gray-500 dark:bg-gray-950 dark:text-gray-400 ' +
+                    'segmented-control inline-flex h-10 items-center justify-center text-[var(--muted)] ' +
                     className
                 }
                 {...props}
@@ -82,10 +82,10 @@ export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>
                 aria-selected={isActive}
                 onClick={() => context.onValueChange?.(value)}
                 className={
-                    'inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ' +
+                    'segmented-option inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:pointer-events-none disabled:opacity-50 ' +
                     (isActive
-                        ? 'bg-white text-indigo-650 shadow-sm dark:bg-gray-850 dark:text-indigo-400'
-                        : 'hover:text-gray-700 dark:hover:text-gray-300') +
+                        ? 'bg-[var(--surface-strong)] text-[var(--accent)] shadow-sm'
+                        : 'hover:text-[var(--text)]') +
                     ' ' +
                     className
                 }
@@ -116,7 +116,7 @@ export const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
             <div
                 ref={ref}
                 role="tabpanel"
-                className={'mt-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 ' + className}
+                className={'mt-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] ' + className}
                 {...props}
             >
                 {children}

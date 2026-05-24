@@ -22,26 +22,26 @@ const COLUMNS: ColumnConfig[] = [
     {
         id: 'wishlist',
         title: 'Wishlist',
-        bgColor: 'bg-gray-50 dark:bg-gray-950',
-        textColor: 'text-gray-700 dark:text-gray-300',
-        borderColor: 'border-gray-200 dark:border-gray-800',
-        accentColor: 'bg-gray-400 dark:bg-gray-500'
+        bgColor: 'bg-[color-mix(in_srgb,var(--surface)_70%,transparent)]',
+        textColor: 'text-[var(--muted-strong)]',
+        borderColor: 'border-[var(--line)]',
+        accentColor: 'bg-[var(--muted)]'
     },
     {
         id: 'applied',
         title: 'Applied',
-        bgColor: 'bg-blue-50/50 dark:bg-blue-950/20',
-        textColor: 'text-blue-700 dark:text-blue-300',
-        borderColor: 'border-blue-100 dark:border-blue-900/50',
-        accentColor: 'bg-blue-500'
+        bgColor: 'bg-[color-mix(in_srgb,var(--accent)_7%,transparent)]',
+        textColor: 'text-[var(--accent)]',
+        borderColor: 'border-[color-mix(in_srgb,var(--accent)_20%,var(--line))]',
+        accentColor: 'bg-[var(--accent)]'
     },
     {
         id: 'interviewing',
         title: 'Interviewing',
-        bgColor: 'bg-purple-50/50 dark:bg-purple-950/20',
-        textColor: 'text-purple-700 dark:text-purple-300',
-        borderColor: 'border-purple-100 dark:border-purple-900/50',
-        accentColor: 'bg-purple-500'
+        bgColor: 'bg-[color-mix(in_srgb,var(--accent-soft)_9%,transparent)]',
+        textColor: 'text-[var(--accent-soft)]',
+        borderColor: 'border-[color-mix(in_srgb,var(--accent-soft)_22%,var(--line))]',
+        accentColor: 'bg-[var(--accent-soft)]'
     },
     {
         id: 'offer',
@@ -126,9 +126,9 @@ export default function KanbanBoard({
                         onDragOver={(e) => handleDragOver(e, col.id)}
                         onDragLeave={() => setDragOverColumn(null)}
                         onDrop={(e) => handleDrop(e, col.id)}
-                        className={`flex min-h-[500px] flex-col rounded-2xl border p-4 transition-all duration-200 ${col.bgColor} ${
+                        className={`flex min-h-[500px] flex-col rounded-[24px] border p-4 transition-all duration-200 ${col.bgColor} ${
                             isOver 
-                                ? 'border-indigo-400 ring-2 ring-indigo-500/10 scale-[1.01] dark:border-indigo-500' 
+                                ? 'scale-[1.01] border-[var(--accent)] ring-2 ring-[color-mix(in_srgb,var(--accent)_14%,transparent)]'
                                 : col.borderColor
                         }`}
                     >
@@ -140,7 +140,7 @@ export default function KanbanBoard({
                                     {col.title}
                                 </h4>
                             </div>
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-800 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface-strong)] text-xs font-semibold text-[var(--muted)] shadow-sm">
                                 {columnItems.length}
                             </span>
                         </div>
@@ -148,8 +148,8 @@ export default function KanbanBoard({
                         {/* Column Cards */}
                         <div className="flex flex-1 flex-col space-y-3">
                             {columnItems.length === 0 ? (
-                                <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 p-4 text-center dark:border-gray-800">
-                                    <span className="text-xs text-gray-400 dark:text-gray-500">Drop cards here</span>
+                                <div className="subtle-empty flex flex-1 flex-col items-center justify-center rounded-xl p-4 text-center">
+                                    <span className="text-xs">Drop cards here</span>
                                 </div>
                             ) : (
                                 columnItems.map(item => (
@@ -159,7 +159,7 @@ export default function KanbanBoard({
                                         onDragStart={() => handleDragStart(item.id)}
                                         onDragEnd={handleDragEnd}
                                         onClick={() => onSelect(item.id)}
-                                        className={`group relative cursor-grab overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md active:cursor-grabbing dark:border-gray-800 dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 ${
+                                        className={`internship-card group relative cursor-grab overflow-hidden p-4 active:cursor-grabbing ${
                                             draggedId === item.id ? 'opacity-40' : ''
                                         }`}
                                     >
@@ -169,10 +169,10 @@ export default function KanbanBoard({
                                         {/* Card content */}
                                         <div className="flex items-start justify-between gap-2">
                                             <div>
-                                                <h5 className="font-bold text-gray-900 line-clamp-1 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                                <h5 className="line-clamp-1 text-sm font-bold text-[var(--text)] transition-colors group-hover:text-[var(--accent)]">
                                                     {item.company_name}
                                                 </h5>
-                                                <p className="mt-0.5 font-medium text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                                                <p className="mt-0.5 line-clamp-1 text-xs font-medium text-[var(--muted)]">
                                                     {item.position}
                                                 </p>
                                             </div>
@@ -187,7 +187,7 @@ export default function KanbanBoard({
                                             </span>
                                         </div>
 
-                                        <p className="mt-2 flex items-center text-[11px] text-gray-400 dark:text-gray-500">
+                                        <p className="mt-2 flex items-center text-[11px] text-[var(--muted)]">
                                             <svg className="mr-1 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -196,15 +196,15 @@ export default function KanbanBoard({
                                         </p>
 
                                         {/* Card Bottom: Counts & Timeline */}
-                                        <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-800">
-                                            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                                        <div className="mt-3 flex items-center justify-between border-t border-[var(--line)] pt-3">
+                                            <span className="text-[10px] font-medium text-[var(--muted)]">
                                                 {getDaysAgo(item.created_at)}
                                             </span>
                                             
                                             <div className="flex items-center space-x-2.5">
                                                 {/* Notes Indicator */}
                                                 {(item.notes && item.notes.length > 0) && (
-                                                    <span className="flex items-center text-[10px] text-gray-400 dark:text-gray-500" title={`${item.notes.length} notes`}>
+                                                    <span className="flex items-center text-[10px] text-[var(--muted)]" title={`${item.notes.length} notes`}>
                                                         <svg className="mr-0.5 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                         </svg>
@@ -214,7 +214,7 @@ export default function KanbanBoard({
                                                 
                                                 {/* Timeline events Indicator */}
                                                 {(item.timeline && item.timeline.length > 0)&& (
-                                                    <span className="flex items-center text-[10px] text-gray-400 dark:text-gray-500" title={`${item.timeline.length} timeline events`}>
+                                                    <span className="flex items-center text-[10px] text-[var(--muted)]" title={`${item.timeline.length} timeline events`}>
                                                         <svg className="mr-0.5 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
@@ -225,13 +225,13 @@ export default function KanbanBoard({
                                         </div>
 
                                         {/* Action buttons (Shown on Card Hover) */}
-                                        <div className="absolute right-2 top-2 hidden items-center space-x-1 rounded-lg bg-white/90 p-0.5 shadow-sm group-hover:flex dark:bg-gray-900/90 backdrop-blur-sm">
+                                        <div className="absolute right-2 top-2 hidden items-center space-x-1 rounded-lg border border-[var(--line)] bg-[var(--surface-strong)]/90 p-0.5 shadow-sm backdrop-blur-sm group-hover:flex">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     onEdit(item);
                                                 }}
-                                                className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-indigo-600 dark:text-gray-400 dark:hover:bg-gray-850 dark:hover:text-indigo-400"
+                                                className="rounded p-1 text-[var(--muted)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:text-[var(--accent)]"
                                                 title="Edit"
                                             >
                                                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +245,7 @@ export default function KanbanBoard({
                                                         onDelete(item.id);
                                                     }
                                                 }}
-                                                className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-gray-850 dark:hover:text-red-400"
+                                                className="rounded p-1 text-[var(--muted)] hover:bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] hover:text-[var(--danger)]"
                                                 title="Delete"
                                             >
                                                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

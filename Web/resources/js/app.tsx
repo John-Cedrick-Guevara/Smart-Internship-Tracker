@@ -3,8 +3,11 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
+import { applyTheme, getInitialTheme } from './hooks/useTheme';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+applyTheme(getInitialTheme());
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -22,6 +25,6 @@ createInertiaApp({
         createRoot(el).render(<App {...props} />);
     },
     progress: {
-        color: '#4B5563',
+        color: '#d88c48',
     },
 });

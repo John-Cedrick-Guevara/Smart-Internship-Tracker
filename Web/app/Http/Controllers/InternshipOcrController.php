@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Internship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\InterviewQuestion;
 
 class InternshipOcrController extends Controller
 {
@@ -120,23 +120,29 @@ class InternshipOcrController extends Controller
                 return response()->json(['error' => 'AI returned an unexpected payload.'], 500);
             }
 
-            // Persist interview questions if present
-            if (!empty($decoded['interview_questions']) && is_array($decoded['interview_questions'])) {
-                try {
-                    $company = $decoded['company_name'] ?? null;
-                    $position = $decoded['position'] ?? null;
+            $routeInternship = $request->route('internship');
+            $internship = null;
 
+            if ($routeInternship instanceof Internship) {
+                $internship = $routeInternship;
+            } elseif (!empty($routeInternship)) {
+                $internship = $request->user()->internships()->find($routeInternship);
+            }
+
+            // Persist interview questions if present and an internship context exists
+            if ($internship instanceof Internship && !empty($decoded['interview_questions']) && is_array($decoded['interview_questions'])) {
+                try {
                     foreach ($decoded['interview_questions'] as $q) {
                         if (empty($q)) {
                             continue;
                         }
-                        InterviewQuestion::create([
+                        $internship->interviewQuestions()->create([
                             'question' => (string) $q,
-                            'company_name' => $company,
-                            'position' => $position,
+                            'category' => 'General',
                             'source' => 'ocr_gateway',
                         ]);
                     }
+                    $internship->markActivity();
                 } catch (\Exception $e) {
                     Log::error('Failed saving interview questions: ' . $e->getMessage());
                 }

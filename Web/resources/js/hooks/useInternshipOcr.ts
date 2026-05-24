@@ -10,6 +10,7 @@ interface InternshipFormState {
     url: string;
     status: InternshipStatus;
     isPaid: boolean;
+    interviewQuestions: string[];
     selectedImage: string | null;
     dragActive: boolean;
     isParsing: boolean;
@@ -24,6 +25,7 @@ const initialFormState: InternshipFormState = {
     url: "",
     status: "wishlist",
     isPaid: true,
+    interviewQuestions: [],
     selectedImage: null,
     dragActive: false,
     isParsing: false,
@@ -52,6 +54,7 @@ export function useInternshipOcr(
                     url: internship.url || "",
                     status: internship.status,
                     isPaid: internship.is_paid,
+                    interviewQuestions: [],
                     selectedImage: null,
                     dragActive: false,
                     isParsing: false,
@@ -79,6 +82,7 @@ export function useInternshipOcr(
             url: formState.url.trim() || null,
             status: formState.status,
             is_paid: formState.isPaid,
+            interview_questions: formState.interviewQuestions,
         };
     }, [formState]);
 
@@ -98,7 +102,11 @@ export function useInternshipOcr(
             formData.append("image", blob, "screenshot.png");
 
             // Send request using fetch (this is an API call, not a page navigation)
-            const apiResponse = await fetch("/internship/extract", {
+            const extractUrl = internship
+                ? `/internships/${internship.id}/extract`
+                : "/internship/extract";
+
+            const apiResponse = await fetch(extractUrl, {
                 method: "POST",
                 body: formData,
                 headers: {
@@ -127,6 +135,9 @@ export function useInternshipOcr(
                     status:
                         (data.data?.status as InternshipStatus) || "wishlist",
                     isPaid: data.data?.is_paid ?? true,
+                    interviewQuestions: Array.isArray(data.data?.interview_questions)
+                        ? data.data.interview_questions
+                        : [],
                     isParsing: false,
                 });
 

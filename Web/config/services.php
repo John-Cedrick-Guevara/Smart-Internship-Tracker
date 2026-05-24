@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'resume_matcher' => [
+        'url' => env('RESUME_MATCHER_API_URL'),
+        'timeout' => env('RESUME_MATCHER_TIMEOUT', 30),
+    ],
+
 ];

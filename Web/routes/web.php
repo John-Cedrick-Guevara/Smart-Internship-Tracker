@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InternshipOcrController;
+use App\Http\Controllers\ApplicationAssetController;
+use App\Http\Controllers\InterviewQuestionController;
+use App\Http\Controllers\ResumeMatchController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,12 +45,23 @@ Route::middleware('auth')->group(function () {
     Route::delete('/internships/{internship}/timeline/{timeline_event}', [\App\Http\Controllers\TimelineController::class, 'deleteTimelineEvent'])->name('timeline.delete');
 
     // OCR route for processing internship screenshots
-    // Endpoint destination path: http://your-laravel-domain.test/internship/extract
-    Route::post('/internship/extract', [InternshipOcrController::class, 'processScreenshot'])->name('internship.extract');
+    Route::post('/internship/extract', [InternshipOcrController::class, 'processScreenshot'])->name('internships.extract');
+    Route::post('/internships/{internship}/extract', [InternshipOcrController::class, 'processScreenshot'])->name('internships.extract.scoped');
 
-    // Interview questions storage and retrieval
-    Route::get('/interview-questions', [\App\Http\Controllers\InterviewQuestionController::class, 'index'])->name('interview_questions.index');
-    Route::post('/interview-questions', [\App\Http\Controllers\InterviewQuestionController::class, 'store'])->name('interview_questions.store');
+    Route::prefix('/internships/{internship}')->group(function () {
+        Route::get('/interview-questions', [InterviewQuestionController::class, 'index'])->name('interview_questions.index');
+        Route::post('/interview-questions', [InterviewQuestionController::class, 'store'])->name('interview_questions.store');
+        Route::patch('/interview-questions/{question}', [InterviewQuestionController::class, 'update'])->name('interview_questions.update');
+        Route::delete('/interview-questions/{question}', [InterviewQuestionController::class, 'destroy'])->name('interview_questions.delete');
+
+        Route::get('/assets', [ApplicationAssetController::class, 'index'])->name('application_assets.index');
+        Route::post('/assets', [ApplicationAssetController::class, 'store'])->name('application_assets.store');
+        Route::patch('/assets/{asset}', [ApplicationAssetController::class, 'update'])->name('application_assets.update');
+        Route::delete('/assets/{asset}', [ApplicationAssetController::class, 'destroy'])->name('application_assets.delete');
+
+        Route::get('/resume-match', [ResumeMatchController::class, 'show'])->name('resume_match.show');
+        Route::post('/resume-match', [ResumeMatchController::class, 'store'])->name('resume_match.store');
+    });
 });
 
 require __DIR__ . '/auth.php';

@@ -27,6 +27,7 @@ class TimelineController extends Controller
 
         $internship = $request->user()->internships()->findOrFail($request->route('internship'));
         $timelineEvent = $internship->timeline()->create($validated);
+        $internship->markActivity();
         // Handle Inertia requests
         if ($request->header('X-Inertia') || !$request->wantsJson()) {
             return redirect()->route('internships.list')->with('success', 'Timeline event added successfully!');
@@ -39,6 +40,7 @@ class TimelineController extends Controller
         $internship = $request->user()->internships()->findOrFail($request->route('internship'));
         $timelineEvent = $internship->timeline()->findOrFail($request->route('timeline_event'));
         $timelineEvent->delete();
+        $internship->markActivity();
 
         // Handle Inertia requests
         if ($request->header('X-Inertia') || !$request->wantsJson()) {
