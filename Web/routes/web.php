@@ -18,8 +18,48 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+use Illuminate\Http\Request;
+use App\Models\InterviewQuestion;
+
+Route::get('/dashboard', function (Request $request) {
+    $user = $request->user();
+    
+    $totalApplications = $user->internships()->count();
+    
+    $totalQuestions = InterviewQuestion::whereHas('internship', function ($query) use ($user) {
+        $query->where('user_id', $user->id);
+    })->count();
+
+    $stageCounts = $user->internships()
+        ->selectRaw('status, count(*) as count')
+        ->groupBy('status')
+        ->pluck('count', 'status')
+        ->toArray();
+
+    $stages = [
+        'wishlist' => $stageCounts['wishlist'] ?? 0,
+        'applied' => $stageCounts['applied'] ?? 0,
+        'interviewing' => $stageCounts['interviewing'] ?? 0,
+        'offer' => $stageCounts['offer'] ?? 0,
+        'rejected' => $stageCounts['rejected'] ?? 0,
+    ];
+
+    $totalFollowups = $stages['applied'];
+
+    $recentApplications = $user->internships()
+        ->latest()
+        ->limit(5)
+        ->get();
+
+    return Inertia::render('Dashboard', [
+        'dashboardStats' => [
+            'applications' => $totalApplications,
+            'questions' => $totalQuestions,
+            'followups' => $totalFollowups,
+        ],
+        'stages' => $stages,
+        'recentApplications' => $recentApplications,
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

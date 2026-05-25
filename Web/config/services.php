@@ -40,4 +40,10 @@ return [
         'timeout' => env('RESUME_MATCHER_TIMEOUT', 30),
     ],
 
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.0-flash'),
+        'timeout' => env('GEMINI_TIMEOUT', 30),
+    ],
+
 ];

@@ -2,8 +2,8 @@
 
 ## Behavior
 
-- The drawer sends resume text to a Laravel proxy endpoint.
-- The proxy can forward the request to a configurable FastAPI service.
+- The drawer sends a selected resume source to Laravel: uploaded file, pasted text, or saved resume asset.
+- Laravel uses Gemini as the primary alignment engine and can fall back to the legacy configurable proxy or local heuristic.
 - The latest match result is persisted on the internship so reopening the drawer restores it.
 
 ## Data Model
@@ -23,11 +23,11 @@
 
 ## UI Interaction
 
-- Users paste resume text or select a file to identify the draft name.
+- Users choose an upload, a saved resume asset, or pasted resume text.
 - The UI sends the analysis request through Laravel.
-- The result card shows score, matched keywords, missing keywords, strengths, gaps, and recommendations.
+- The result card shows score, summary, matched keywords, missing keywords, strengths, gaps, and recommendations.
 
 ## Notes
 
-- If the FastAPI endpoint is not configured, the controller falls back to a local heuristic result so the feature remains usable.
+- If Gemini and the FastAPI endpoint are not configured, the controller falls back to a local heuristic result so the feature remains usable.
 - `last_activity_at` is refreshed when the analysis is saved.

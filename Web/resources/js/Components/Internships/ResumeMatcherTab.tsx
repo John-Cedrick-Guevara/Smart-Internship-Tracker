@@ -9,8 +9,15 @@ interface ResumeMatcherTabProps {
 }
 
 export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) {
+    const resumeAssets = useMemo(
+        () => (internship.assets || []).filter((asset) => asset.asset_type === 'resume'),
+        [internship.assets],
+    );
+    const [resumeSource, setResumeSource] = useState<'upload' | 'asset' | 'text'>('upload');
     const [resumeText, setResumeText] = useState('');
     const [fileName, setFileName] = useState('');
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [selectedAssetId, setSelectedAssetId] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState<ResumeMatchResult | null>(internship.resume_match_result || null);
     const [analyzedAt, setAnalyzedAt] = useState<string | null>(internship.resume_match_analyzed_at);
@@ -18,6 +25,11 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
     useEffect(() => {
         setResult(internship.resume_match_result || null);
         setAnalyzedAt(internship.resume_match_analyzed_at);
+        setResumeSource('upload');
+        setResumeText('');
+        setFileName('');
+        setSelectedFile(null);
+        setSelectedAssetId('');
     }, [internship.id, internship.resume_match_result, internship.resume_match_analyzed_at]);
 
     const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -31,6 +43,7 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
         if (!file) return;
 
         setFileName(file.name);
+        setSelectedFile(file);
 
         if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
             const text = await file.text();
@@ -38,30 +51,52 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
             return;
         }
 
-        toast.info('Uploaded file selected. Paste the extracted resume text into the box below before analyzing.');
+        toast.info('Uploaded file selected. It will be sent securely for Gemini analysis.');
     };
 
     const handleAnalyze = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!resumeText.trim()) {
+        if (resumeSource === 'upload' && !selectedFile && !resumeText.trim()) {
+            toast.error('Upload a resume file or paste extracted resume text before analyzing.');
+            return;
+        }
+
+        if (resumeSource === 'asset' && !selectedAssetId) {
+            toast.error('Choose a saved resume asset before analyzing.');
+            return;
+        }
+
+        if (resumeSource === 'text' && !resumeText.trim()) {
             toast.error('Paste resume text before analyzing.');
             return;
         }
 
         setIsAnalyzing(true);
 
+        const formData = new FormData();
+        formData.append('resume_source', resumeSource);
+
+        if (resumeText.trim()) {
+            formData.append('resume_text', resumeText.trim());
+        }
+
+        if (resumeSource === 'upload' && selectedFile) {
+            formData.append('file', selectedFile);
+            formData.append('file_name', selectedFile.name);
+        }
+
+        if (resumeSource === 'asset') {
+            formData.append('asset_id', selectedAssetId);
+        }
+
         const response = await fetch(route('resume_match.store', internship.id), {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken(),
                 Accept: 'application/json',
-                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                resume_text: resumeText,
-                file_name: fileName || null,
-            }),
+            body: formData,
         });
 
         setIsAnalyzing(false);
@@ -86,6 +121,8 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
     const handleReset = () => {
         setResumeText('');
         setFileName('');
+        setSelectedFile(null);
+        setSelectedAssetId('');
         setResult(null);
         setAnalyzedAt(null);
         toast.info('Cleared resume analyzer draft.');
@@ -112,43 +149,89 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
         <div className="space-y-6 animate-fade-in text-gray-800 dark:text-gray-200">
             {!result ? (
                 <form onSubmit={handleAnalyze} className="space-y-5">
-                    <div className="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/20 p-6 text-center hover:bg-gray-50/50 dark:hover:bg-gray-950/10 transition-colors relative">
-                        <input
-                            type="file"
-                            accept=".txt,.pdf,.doc,.docx"
-                            onChange={handleFileChange}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                        />
+                    <div className="grid grid-cols-3 gap-2">
+                        {(['upload', 'asset', 'text'] as const).map((source) => (
+                            <button
+                                key={source}
+                                type="button"
+                                onClick={() => setResumeSource(source)}
+                                className={`rounded-lg border px-3 py-2 text-[11px] font-bold capitalize transition-colors ${
+                                    resumeSource === source
+                                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300'
+                                        : 'border-gray-250 text-gray-500 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-900'
+                                }`}
+                            >
+                                {source === 'asset' ? 'Saved asset' : source}
+                            </button>
+                        ))}
+                    </div>
 
-                        <div className="flex flex-col items-center justify-center space-y-2.5">
-                            <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl text-indigo-650 dark:text-indigo-400">
-                                <UploadCloud className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold text-gray-900 dark:text-white">
-                                    {fileName ? `Selected file: ${fileName}` : 'Upload Resume Document'}
-                                </p>
-                                <p className="text-[10px] text-gray-400 mt-1">
-                                    Upload a file, then paste the extracted text for server-side analysis.
-                                </p>
+                    {resumeSource === 'upload' && (
+                        <div className="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/20 p-6 text-center hover:bg-gray-50/50 dark:hover:bg-gray-950/10 transition-colors relative">
+                            <input
+                                type="file"
+                                accept=".txt,.md,.pdf,.docx"
+                                onChange={handleFileChange}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            />
+
+                            <div className="flex flex-col items-center justify-center space-y-2.5">
+                                <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl text-indigo-650 dark:text-indigo-400">
+                                    <UploadCloud className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-900 dark:text-white">
+                                        {fileName ? `Selected file: ${fileName}` : 'Upload Resume Document'}
+                                    </p>
+                                    <p className="text-[10px] text-gray-400 mt-1">
+                                        PDF, DOCX, TXT, or Markdown resumes can be analyzed with Gemini.
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-extrabold tracking-wider text-gray-400 block">Resume Contents</label>
-                        <textarea
-                            className="w-full text-xs rounded-xl border border-gray-250 bg-white p-3 shadow-inner focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
-                            placeholder="Paste the resume text to analyze..."
-                            rows={8}
-                            value={resumeText}
-                            onChange={(e) => setResumeText(e.target.value)}
-                        />
-                    </div>
+                    {resumeSource === 'asset' && (
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase font-extrabold tracking-wider text-gray-400 block">Saved Resume Asset</label>
+                            <select
+                                value={selectedAssetId}
+                                onChange={(e) => setSelectedAssetId(e.target.value)}
+                                className="w-full rounded-xl border border-gray-250 bg-white p-3 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
+                            >
+                                <option value="">Choose a saved resume</option>
+                                {resumeAssets.map((asset) => (
+                                    <option key={asset.id} value={asset.id}>
+                                        {asset.label}{asset.file_name ? ` - ${asset.file_name}` : ''}
+                                    </option>
+                                ))}
+                            </select>
+                            {resumeAssets.length === 0 && (
+                                <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                                    Add a resume in Application Assets first, or switch to upload.
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {(resumeSource === 'text' || resumeSource === 'upload') && (
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase font-extrabold tracking-wider text-gray-400 block">
+                                {resumeSource === 'upload' ? 'Optional Extracted Text' : 'Resume Contents'}
+                            </label>
+                            <textarea
+                                className="w-full text-xs rounded-xl border border-gray-250 bg-white p-3 shadow-inner focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white"
+                                placeholder="Paste resume text to improve analysis..."
+                                rows={resumeSource === 'upload' ? 4 : 8}
+                                value={resumeText}
+                                onChange={(e) => setResumeText(e.target.value)}
+                            />
+                        </div>
+                    )}
 
                     <button
                         type="submit"
-                        disabled={isAnalyzing || !resumeText.trim()}
+                        disabled={isAnalyzing}
                         className="w-full flex items-center justify-center space-x-2 rounded-xl bg-indigo-600 px-4 py-3 text-xs font-bold text-white shadow-md shadow-indigo-500/10 hover:bg-indigo-750 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
                     >
                         {isAnalyzing ? (
@@ -198,6 +281,11 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
                                 <p className="text-[11px] text-gray-550 dark:text-gray-400 mt-1 max-w-xs leading-relaxed">
                                     Comparison with <span className="font-semibold text-indigo-650 dark:text-indigo-400">{internship.position}</span>.
                                 </p>
+                                {result.summary && (
+                                    <p className="text-[11px] text-gray-600 dark:text-gray-350 mt-2 max-w-md leading-relaxed">
+                                        {result.summary}
+                                    </p>
+                                )}
                                 {analyzedAt && (
                                     <p className="text-[10px] text-gray-400 mt-1">
                                         Last analyzed {new Date(analyzedAt).toLocaleString()}

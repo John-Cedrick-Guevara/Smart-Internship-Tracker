@@ -3,8 +3,8 @@
 ## Behavior
 
 - Every internship has its own interview question set.
-- New internships are seeded with role-aligned questions when OCR did not provide a custom set.
-- OCR imports can attach extracted questions to the internship being created or edited.
+- New internships only store interview questions that are explicitly included when the application is saved.
+- OCR imports can return extracted questions to the form draft, but they are not persisted until the user saves the application.
 - Practice status and scratchpad notes are stored per question.
 
 ## Data Model

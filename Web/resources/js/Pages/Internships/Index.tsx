@@ -122,7 +122,7 @@ export default function Index({ internships }: { internships: Internship[] }) {
                     {internships && internships.length > 0 ? (
                         <>
                             {/* Filter and Control Bar */}
-                    <div className="internship-surface flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="internship-surface flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
 
                                 {/* Search and Dropdowns */}
                                 <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">

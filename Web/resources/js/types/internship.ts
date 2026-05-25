@@ -57,6 +57,7 @@ export interface ApplicationAsset {
 
 export interface ResumeMatchResult {
     score: number;
+    summary: string;
     matchedKeywords: string[];
     missingKeywords: string[];
     strengths: string[];

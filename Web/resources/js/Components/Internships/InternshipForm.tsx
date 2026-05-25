@@ -326,11 +326,10 @@ export default function InternshipForm({
 
                                             <div className="mt-1 flex space-x-3">
                                                 <label
-                                                    className={`flex flex-1 items-center justify-center cursor-pointer border rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
-                                                        formState.isPaid
+                                                    className={`flex flex-1 items-center justify-center cursor-pointer border rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${formState.isPaid
                                                             ? "bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-950/20 dark:border-emerald-900/50 dark:text-emerald-400"
                                                             : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-900"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     <input
                                                         type="radio"
@@ -350,11 +349,10 @@ export default function InternshipForm({
                                                 </label>
 
                                                 <label
-                                                    className={`flex flex-1 items-center justify-center cursor-pointer border rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
-                                                        !formState.isPaid
+                                                    className={`flex flex-1 items-center justify-center cursor-pointer border rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${!formState.isPaid
                                                             ? "bg-amber-50 border-amber-300 text-amber-700 dark:bg-amber-950/20 dark:border-amber-900/50 dark:text-amber-400"
                                                             : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-900"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     <input
                                                         type="radio"
@@ -378,7 +376,7 @@ export default function InternshipForm({
                                 </div>
 
                                 {/* Footer actions */}
-                                <div className="bg-gray-50/50 px-6 py-4 border-t border-gray-250/60 flex justify-end space-x-3 dark:bg-gray-950/20 dark:border-gray-800/80">
+                                <div className="bg-white px-6 py-4 border-t border-gray-250/60 flex justify-end space-x-3 dark:bg-gray-950/20 dark:border-gray-800/80">
                                     <Button
                                         type="button"
                                         variant="outline"
@@ -399,11 +397,10 @@ export default function InternshipForm({
                         <TabsContent value="ai-scan">
                             <div className="px-6 pb-6">
                                 <div
-                                    className={`relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all ${
-                                        formState.dragActive
-                                            ? "border-indigo-500 bg-indigo-50/10 dark:border-indigo-400"
-                                            : "border-gray-300 dark:border-gray-850 hover:border-gray-450 dark:hover:border-gray-700 bg-gray-50/30 dark:bg-gray-950/10"
-                                    }`}
+                                    className={`relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all ${formState.dragActive
+                                        ? "border-indigo-500 bg-indigo-50/10 dark:border-indigo-400"
+                                        : "border-gray-300 dark:border-gray-850 hover:border-gray-450 dark:hover:border-gray-700 bg-gray-50/30 dark:bg-gray-950/10"
+                                        }`}
                                     onDragEnter={handleDrag}
                                     onDragOver={handleDrag}
                                     onDragLeave={handleDrag}

@@ -211,14 +211,14 @@ export default function DetailPanel({
                                     {/* Timeline Card */}
                                     <button
                                         onClick={() => setActiveTab('timeline')}
-                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 group"
+                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 hover:border-slate-400 hover:shadow-lg hover:shadow-slate-500/5 transition-all duration-200 group"
                                     >
                                         <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-indigo-650 dark:group-hover:text-indigo-450 transition-colors absolute right-4 top-4" />
                                         <div>
-                                            <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 w-fit mb-3">
+                                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 text-slate-650 dark:text-slate-400 w-fit mb-3">
                                                 <Clock className="h-4 w-4" />
                                             </div>
-                                            <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">
+                                            <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors">
                                                 Timeline Milestones
                                             </h4>
                                             <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
@@ -226,7 +226,7 @@ export default function DetailPanel({
                                             </p>
                                         </div>
                                         <div className="mt-4">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 text-slate-700 dark:bg-slate-950/40 dark:text-slate-400 border border-slate-100 dark:border-slate-900/30">
                                                 {internship.timeline.length} Milestones
                                             </span>
                                         </div>
@@ -235,14 +235,14 @@ export default function DetailPanel({
                                     {/* Notes Card */}
                                     <button
                                         onClick={() => setActiveTab('notes')}
-                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 group"
+                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-lg hover:shadow-slate-500/5 transition-all duration-200 group"
                                     >
-                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-indigo-650 dark:group-hover:text-indigo-450 transition-colors absolute right-4 top-4" />
+                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors absolute right-4 top-4" />
                                         <div>
-                                            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 w-fit mb-3">
+                                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 text-slate-650 dark:text-slate-400 w-fit mb-3">
                                                 <FileText className="h-4 w-4" />
                                             </div>
-                                            <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">
+                                            <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors">
                                                 Notes Ledger
                                             </h4>
                                             <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
@@ -250,7 +250,7 @@ export default function DetailPanel({
                                             </p>
                                         </div>
                                         <div className="mt-4">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 text-slate-700 dark:bg-slate-950/40 dark:text-slate-400 border border-slate-100 dark:border-slate-900/30">
                                                 {internship.notes.length} Notes
                                             </span>
                                         </div>
@@ -259,25 +259,25 @@ export default function DetailPanel({
                                     {/* Interview Prep Card */}
                                     <button
                                         onClick={() => setActiveTab('interview')}
-                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 group"
+                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-lg hover:shadow-slate-500/5 transition-all duration-200 group"
                                     >
-                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-indigo-650 dark:group-hover:text-indigo-450 transition-colors absolute right-4 top-4" />
+                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors absolute right-4 top-4" />
                                         <div>
-                                            <div className="p-2 rounded-lg bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 w-fit mb-3">
+                                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 text-slate-650 dark:text-slate-400 w-fit mb-3">
                                                 <HelpCircle className="h-4 w-4" />
                                             </div>
-                                            <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">
+                                            <h4 className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors">
                                                 AI Interview Prep
                                             </h4>
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
+                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
                                                 Mock interview questions customized for your role.
                                             </p>
                                         </div>
                                         <div className="mt-4">
                                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${
                                                 practicedCount > 0
-                                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-455 border-emerald-100 dark:border-emerald-900/30'
-                                                    : 'bg-violet-50 text-violet-750 dark:bg-violet-950/40 dark:text-violet-400 border-violet-100 dark:border-violet-900/30'
+                                                    ? 'bg-slate-50 text-slate-700 dark:bg-slate-950/40 dark:text-slate-400 border-slate-100 dark:border-slate-900/30'
+                                                    : 'bg-slate-50 text-slate-700 dark:bg-slate-950/40 dark:text-slate-400 border-slate-100 dark:border-slate-900/30'
                                             }`}>
                                                 {practicedCount > 0 ? `${practicedCount} Mastered` : 'Not Started'}
                                             </span>
@@ -287,25 +287,25 @@ export default function DetailPanel({
                                     {/* Resume Match Card */}
                                     <button
                                         onClick={() => setActiveTab('resume')}
-                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 group"
+                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-lg hover:shadow-slate-500/5 transition-all duration-200 group"
                                     >
-                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-indigo-650 dark:group-hover:text-indigo-455 transition-colors absolute right-4 top-4" />
+                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors absolute right-4 top-4" />
                                         <div>
-                                            <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 w-fit mb-3">
+                                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 text-slate-650 dark:text-slate-400 w-fit mb-3">
                                                 <Sparkles className="h-4 w-4" />
                                             </div>
-                                            <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">
+                                            <h4 className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors">
                                                 Resume Job Matcher
                                             </h4>
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
+                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
                                                 Radial alignment scanner and keyword optimizations.
                                             </p>
                                         </div>
                                         <div className="mt-4">
                                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${
                                                 resumeScore !== null
-                                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-455 border-emerald-100 dark:border-emerald-900/30'
-                                                    : 'bg-gray-55 text-gray-500 dark:bg-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-750'
+                                                    ? 'bg-slate-50 text-slate-700 dark:bg-slate-950/40 dark:text-slate-400 border-slate-100 dark:border-slate-900/30'
+                                                    : 'bg-slate-50 text-slate-700 dark:bg-slate-950/40 dark:text-slate-400 border-slate-100 dark:border-slate-900/30'
                                             }`}>
                                                 {resumeScore !== null ? `${resumeScore}% Match` : 'Not Scanned'}
                                             </span>
@@ -315,17 +315,17 @@ export default function DetailPanel({
                                     {/* Follow-up Card */}
                                     <button
                                         onClick={() => setActiveTab('followup')}
-                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 group"
+                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-lg hover:shadow-slate-500/5 transition-all duration-200 group"
                                     >
-                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-indigo-650 dark:group-hover:text-indigo-455 transition-colors absolute right-4 top-4" />
+                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors absolute right-4 top-4" />
                                         <div>
-                                            <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 w-fit mb-3">
+                                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 text-slate-650 dark:text-slate-400 w-fit mb-3">
                                                 <Mail className="h-4 w-4" />
                                             </div>
-                                            <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">
+                                            <h4 className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors">
                                                 Follow-up Copilot
                                             </h4>
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
+                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
                                                 Check application staleness and draft tailored outreach.
                                             </p>
                                         </div>
@@ -337,8 +337,8 @@ export default function DetailPanel({
                                                 return (
                                                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${
                                                         isStale
-                                                            ? 'bg-amber-50 text-amber-705 dark:bg-amber-950/30 dark:text-amber-400 border-amber-100 dark:border-amber-900/30 animate-pulse'
-                                                            : 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border-rose-100 dark:border-rose-900/30'
+                                                            ? 'bg-slate-50 text-slate-705 dark:bg-slate-950/30 dark:text-slate-400 border-slate-100 dark:border-slate-900/30 animate-pulse'
+                                                            : 'bg-slate-50 text-slate-700 dark:bg-slate-950/40 dark:text-slate-400 border-slate-100 dark:border-slate-900/30'
                                                     }`}>
                                                         {isStale ? 'Action Recommended' : 'Up to Date'}
                                                     </span>
@@ -350,22 +350,22 @@ export default function DetailPanel({
                                     {/* Assets Card */}
                                     <button
                                         onClick={() => setActiveTab('assets')}
-                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-855 dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 group"
+                                        className="text-left relative flex flex-col justify-between p-4 rounded-xl border border-gray-150 bg-white dark:border-gray-805 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-lg hover:shadow-slate-500/5 transition-all duration-200 group"
                                     >
-                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-indigo-650 dark:group-hover:text-indigo-455 transition-colors absolute right-4 top-4" />
+                                        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors absolute right-4 top-4" />
                                         <div>
-                                            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-650 dark:text-blue-450 w-fit mb-3">
+                                            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 text-slate-650 dark:text-slate-400 w-fit mb-3">
                                                 <Paperclip className="h-4 w-4" />
                                             </div>
-                                            <h4 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">
+                                            <h4 className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-slate-650 dark:group-hover:text-slate-400 transition-colors">
                                                 Application Assets
                                             </h4>
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">
+                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
                                                 Locker for reference links, cover letters & profiles.
                                             </p>
                                         </div>
                                         <div className="mt-4">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-450 border border-blue-100 dark:border-blue-900/30">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 text-slate-700 dark:bg-slate-950/40 dark:text-slate-400 border border-slate-100 dark:border-slate-900/30">
                                                 {assetsMetrics.total > 0 ? `${assetsMetrics.ready}/${assetsMetrics.total} Ready` : '0 Assets'}
                                             </span>
                                         </div>

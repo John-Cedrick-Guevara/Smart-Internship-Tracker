@@ -282,7 +282,7 @@ export default function ApplicationAssetsTab({ internship }: ApplicationAssetsTa
                     const isEditing = editingAssetId === asset.id;
 
                     return (
-                        <div key={asset.id} className="rounded-xl border border-gray-150 dark:border-gray-850 bg-white dark:bg-gray-900/50 p-4">
+                        <div key={asset.id} className="rounded-xl border border-gray-150 dark:border-s-850 bg-white dark:bg-gray-900/50 p-4">
                             {isEditing ? (
                                 <div className="space-y-3.5">
                                     <div className="flex items-center justify-between gap-3">
