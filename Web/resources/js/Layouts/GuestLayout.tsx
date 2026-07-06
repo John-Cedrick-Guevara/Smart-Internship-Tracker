@@ -1,3 +1,4 @@
+import BrandWatermark from '@/Components/BrandWatermark';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { useTheme } from '@/hooks/useTheme';
 import { Link } from '@inertiajs/react';
@@ -43,6 +44,8 @@ export default function Guest({ children }: PropsWithChildren) {
             <div className="auth-card relative mt-6 w-full overflow-hidden px-6 py-6 sm:max-w-md">
                 {children}
             </div>
+
+            <BrandWatermark className="relative mt-8 pb-8" />
         </div>
     );
 }

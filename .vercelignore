@@ -1,0 +1,14 @@
+Web/node_modules
+Web/vendor
+Web/.env
+Web/database/database.sqlite
+Web/storage/logs/*
+Web/storage/framework/cache/data/*
+Web/storage/framework/sessions/*
+Web/storage/framework/views/*
+AI-features/venv
+AI-features/.venv
+AI-features/__pycache__
+.git
+.cursor
+docs

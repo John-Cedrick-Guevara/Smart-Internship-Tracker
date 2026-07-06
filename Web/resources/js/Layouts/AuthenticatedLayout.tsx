@@ -1,3 +1,4 @@
+import BrandWatermark from '@/Components/BrandWatermark';
 import { useTheme } from '@/hooks/useTheme';
 import { Link, usePage } from '@inertiajs/react';
 import {
@@ -17,7 +18,7 @@ export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage().props.auth.user;
+    const user = usePage().props.auth.user!;
     const { theme, toggleTheme } = useTheme();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -260,6 +261,8 @@ export default function Authenticated({
                 <main className="flex-1">
                     {children}
                 </main>
+
+                <BrandWatermark />
             </div>
         </div>
     );

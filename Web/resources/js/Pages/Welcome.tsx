@@ -1,3 +1,4 @@
+import BrandWatermark from '@/Components/BrandWatermark';
 import { useTheme } from '@/hooks/useTheme';
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
@@ -551,12 +552,26 @@ export default function Welcome({
                     <Heart className="size-5 mx-auto text-[var(--text)] transition hover:fill-red-500 hover:text-red-500 cursor-pointer" />
                     <div className="space-y-2">
                         <p className="font-mono text-xs font-bold tracking-widest text-[var(--text)] uppercase">
-                            Thank you, and we look forward to working with you.
+                            A personal AI engineering project by John Cedrick Guevara
+                        </p>
+                        <p className="text-sm text-[var(--muted-strong)] max-w-2xl mx-auto leading-relaxed">
+                            Anti Mahinang Nilalang explores practical Gemini integrations for job-application workflows.
+                            AI features are intentionally lifetime-limited to prevent API abuse.
                         </p>
                         <p className="text-[10px] tracking-wider text-[var(--muted)] uppercase">
-                            ANTI MAHINANG NILALANG © 2026 // ALL SYSTEM OPERATIONAL STATUSES NORMAL
+                            <a
+                                href="https://guevix.vercel.app"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-[var(--accent)] transition-colors"
+                            >
+                                guevix.vercel.app
+                            </a>
+                            {' · '}
+                            ANTI MAHINANG NILALANG © 2026
                         </p>
                     </div>
+                    <BrandWatermark className="border-0 pt-0" />
                 </footer>
             </div>
         </>

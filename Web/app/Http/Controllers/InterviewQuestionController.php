@@ -2,23 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\InterviewQuestion;
-use App\Models\Internship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class InterviewQuestionController extends Controller
 {
-    public function index(Request $request, Internship $internship)
+    private function ownedInternship(Request $request)
     {
+        return $request->user()->internships()->findOrFail($request->route('internship'));
+    }
+
+    public function index(Request $request)
+    {
+        $internship = $this->ownedInternship($request);
+
         return response()->json([
             'success' => true,
             'data' => $internship->interviewQuestions()->latest()->get(),
         ]);
     }
 
-    public function store(Request $request, Internship $internship)
+    public function store(Request $request)
     {
+        $internship = $this->ownedInternship($request);
+
         $validated = $request->validate([
             'question' => 'required|string|max:2000',
             'category' => 'nullable|in:Technical,Behavioral,General',
@@ -51,8 +58,9 @@ class InterviewQuestionController extends Controller
         }
     }
 
-    public function update(Request $request, Internship $internship)
+    public function update(Request $request)
     {
+        $internship = $this->ownedInternship($request);
         $question = $internship->interviewQuestions()->findOrFail($request->route('question'));
 
         $validated = $request->validate([
@@ -74,8 +82,9 @@ class InterviewQuestionController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, Internship $internship)
+    public function destroy(Request $request)
     {
+        $internship = $this->ownedInternship($request);
         $question = $internship->interviewQuestions()->findOrFail($request->route('question'));
         $question->delete();
         $internship->markActivity();

@@ -133,6 +133,34 @@
         color: var(--muted-strong);
     }
 
+    .brand-watermark {
+        @apply mx-auto w-full max-w-7xl border-t border-[var(--line)] px-6 py-8 text-center md:px-8;
+    }
+
+    .brand-watermark--inline {
+        @apply border-0 px-0 py-0 text-left;
+    }
+
+    .brand-watermark__title {
+        @apply font-mono text-[10px] font-bold uppercase tracking-[0.28em];
+        color: var(--muted);
+    }
+
+    .brand-watermark__copy {
+        @apply mt-2 text-xs leading-relaxed;
+        color: var(--muted-strong);
+    }
+
+    .brand-watermark__meta {
+        @apply mt-3 font-mono text-[10px] uppercase tracking-wider;
+        color: var(--muted);
+    }
+
+    .brand-watermark__link {
+        @apply transition-colors hover:text-[var(--accent)];
+        color: var(--text);
+    }
+
     .nav-pill,
     .ghost-pill,
     .cta-pill,

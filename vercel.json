@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "buildCommand": "cd Web && composer install --no-dev --optimize-autoloader && npm ci && npm run build && cd .. && bash scripts/pack.sh && bash scripts/vercel-prepare.sh",
+  "installCommand": "echo 'Dependencies installed during buildCommand'",
+  "functions": {
+    "api/main.go": {
+      "runtime": "go1.x",
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    {
+      "src": "/build/(.*)",
+      "dest": "/api/laravel/public/build/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/api/laravel/public/favicon.ico"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/api/laravel/public/robots.txt"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/main.go"
+    }
+  ],
+  "env": {
+    "APP_ENV": "production",
+    "APP_DEBUG": "false",
+    "LOG_CHANNEL": "stderr",
+    "SESSION_DRIVER": "redis",
+    "CACHE_STORE": "redis",
+    "QUEUE_CONNECTION": "sync",
+    "APP_CONFIG_CACHE": "/tmp/config.php",
+    "APP_EVENTS_CACHE": "/tmp/events.php",
+    "APP_PACKAGES_CACHE": "/tmp/packages.php",
+    "APP_ROUTES_CACHE": "/tmp/routes.php",
+    "APP_SERVICES_CACHE": "/tmp/services.php",
+    "VIEW_COMPILED_PATH": "/tmp/views",
+    "OCR_ENABLED": "false",
+    "AI_RESUME_MATCH_LIFETIME_LIMIT": "1",
+    "AI_OCR_LIFETIME_LIMIT": "1"
+  }
+}

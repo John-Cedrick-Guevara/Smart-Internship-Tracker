@@ -46,4 +46,16 @@ return [
         'timeout' => env('GEMINI_TIMEOUT', 30),
     ],
 
+    'ocr' => [
+        'url' => env('OCR_SERVICE_URL'),
+        'timeout' => (int) env('OCR_SERVICE_TIMEOUT', 60),
+    ],
+
+    'ai' => [
+        'ocr_enabled' => filter_var(env('OCR_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+        'ocr_lifetime_limit' => (int) env('AI_OCR_LIFETIME_LIMIT', 1),
+        'resume_match_lifetime_limit' => (int) env('AI_RESUME_MATCH_LIFETIME_LIMIT', 1),
+        'allow_registration' => filter_var(env('APP_ALLOW_REGISTRATION', true), FILTER_VALIDATE_BOOLEAN),
+    ],
+
 ];

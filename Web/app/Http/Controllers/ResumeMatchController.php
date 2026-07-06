@@ -26,6 +26,7 @@ class ResumeMatchController extends Controller
     public function store(Request $request)
     {
         $internship = $request->user()->internships()->findOrFail($request->route('internship'));
+        $user = $request->user();
 
         $validated = $request->validate([
             'resume_source' => 'nullable|in:text,upload,asset',
@@ -43,16 +44,28 @@ class ResumeMatchController extends Controller
             ], 422);
         }
 
-        $result = $this->localFallbackResult($internship, $resumeInput['text'] ?? '');
         $geminiResult = $this->geminiResult($internship, $resumeInput);
 
-        if ($geminiResult !== null) {
-            $result = $this->normalizeResult($geminiResult, $result);
-        } else {
-            $proxyResult = $this->proxyResult($internship, $resumeInput, $result);
-            if ($proxyResult !== null) {
-                $result = $proxyResult;
+        if ($geminiResult === null) {
+            if ($this->allowNonGeminiFallbacks()) {
+                $result = $this->localFallbackResult($internship, $resumeInput['text'] ?? '');
+                $proxyResult = $this->proxyResult($internship, $resumeInput, $result);
+                if ($proxyResult !== null) {
+                    $result = $proxyResult;
+                }
+            } else {
+                return response()->json([
+                    'error' => 'AI resume analysis is unavailable. Please try again later.',
+                ], 503);
             }
+        } else {
+            $fallback = $this->localFallbackResult($internship, $resumeInput['text'] ?? '');
+            $result = $this->normalizeResult($geminiResult, $fallback);
+
+            $user->forceFill([
+                'ai_resume_match_uses' => (int) $user->ai_resume_match_uses + 1,
+                'ai_resume_match_used_at' => now(),
+            ])->saveQuietly();
         }
 
         $internship->forceFill([
@@ -68,6 +81,11 @@ class ResumeMatchController extends Controller
                 'analyzed_at' => $internship->resume_match_analyzed_at?->toIso8601String(),
             ],
         ]);
+    }
+
+    private function allowNonGeminiFallbacks(): bool
+    {
+        return app()->environment(['local', 'testing']);
     }
 
     private function resolveResumeInput(Request $request, Internship $internship, array $validated): array
@@ -92,9 +110,10 @@ class ResumeMatchController extends Controller
             $asset = $internship->assets()->findOrFail($validated['asset_id']);
             $fileName = $asset->file_name ?: $asset->label;
 
-            if ($asset->file_path && Storage::disk('public')->exists($asset->file_path)) {
+            $assetPath = $this->resolveReadableAssetPath($asset->file_path);
+            if ($assetPath !== null) {
                 [$fileText, $filePart] = $this->fileContentForGemini(
-                    Storage::disk('public')->path($asset->file_path),
+                    $assetPath,
                     $asset->mime_type ?: 'application/octet-stream',
                     $fileName
                 );
@@ -110,6 +129,33 @@ class ResumeMatchController extends Controller
             'file_part' => $filePart,
             'file_name' => $fileName,
         ];
+    }
+
+    private function resolveReadableAssetPath(?string $filePath): ?string
+    {
+        if (empty($filePath)) {
+            return null;
+        }
+
+        $disk = Storage::disk('public');
+
+        if (!$disk->exists($filePath)) {
+            return null;
+        }
+
+        try {
+            $localPath = $disk->path($filePath);
+            if (is_readable($localPath)) {
+                return $localPath;
+            }
+        } catch (\Throwable) {
+            // Remote disk drivers do not support path().
+        }
+
+        $tempPath = sys_get_temp_dir() . '/' . uniqid('resume_', true) . '_' . basename($filePath);
+        file_put_contents($tempPath, $disk->get($filePath) ?: '');
+
+        return is_readable($tempPath) ? $tempPath : null;
     }
 
     private function fileContentForGemini(string $path, string $mimeType, ?string $fileName): array

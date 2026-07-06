@@ -3,6 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="author" content="John Cedrick Guevara">
+        <meta name="description" content="Anti Mahinang Nilalang — a personal AI engineering project by John Cedrick Guevara for internship application tracking and Gemini-powered resume alignment.">
 
         <title inertia>{{ config('app.name', 'AntiMahinangNIlalang') }}</title>
 

@@ -1,14 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { UploadCloud, Sparkles, CheckCircle, AlertTriangle, RefreshCw, TrendingUp, ListTodo } from 'lucide-react';
 import { toast } from 'sonner';
 import { Internship, ResumeMatchResult } from '../../types/internship';
+import { PageProps } from '../../types';
 
 interface ResumeMatcherTabProps {
     internship: Internship;
 }
 
 export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) {
+    const { ai } = usePage<PageProps>().props;
+    const resumeMatchRemaining = ai?.resumeMatchRemaining ?? 0;
+    const canAnalyze = resumeMatchRemaining > 0;
     const resumeAssets = useMemo(
         () => (internship.assets || []).filter((asset) => asset.asset_type === 'resume'),
         [internship.assets],
@@ -57,6 +61,11 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
     const handleAnalyze = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!canAnalyze) {
+            toast.error('You have used your lifetime AI resume analysis allowance.');
+            return;
+        }
+
         if (resumeSource === 'upload' && !selectedFile && !resumeText.trim()) {
             toast.error('Upload a resume file or paste extracted resume text before analyzing.');
             return;
@@ -102,7 +111,8 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
         setIsAnalyzing(false);
 
         if (!response.ok) {
-            toast.error('Resume analysis failed.');
+            const payload = await response.json().catch(() => ({}));
+            toast.error(payload?.error || 'Resume analysis failed.');
             return;
         }
 
@@ -147,6 +157,12 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
 
     return (
         <div className="space-y-6 animate-fade-in text-gray-800 dark:text-gray-200">
+            <div className={`rounded-xl border px-4 py-3 text-xs ${canAnalyze ? 'border-indigo-200 bg-indigo-50/60 text-indigo-800 dark:border-indigo-900/50 dark:bg-indigo-950/20 dark:text-indigo-300' : 'border-amber-200 bg-amber-50/60 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-300'}`}>
+                {canAnalyze
+                    ? `${resumeMatchRemaining} lifetime AI resume ${resumeMatchRemaining === 1 ? 'analysis' : 'analyses'} remaining.`
+                    : 'You have used your lifetime AI resume analysis allowance.'}
+            </div>
+
             {!result ? (
                 <form onSubmit={handleAnalyze} className="space-y-5">
                     <div className="grid grid-cols-3 gap-2">
@@ -231,7 +247,7 @@ export default function ResumeMatcherTab({ internship }: ResumeMatcherTabProps) 
 
                     <button
                         type="submit"
-                        disabled={isAnalyzing}
+                        disabled={isAnalyzing || !canAnalyze}
                         className="w-full flex items-center justify-center space-x-2 rounded-xl bg-indigo-600 px-4 py-3 text-xs font-bold text-white shadow-md shadow-indigo-500/10 hover:bg-indigo-750 transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
                     >
                         {isAnalyzing ? (

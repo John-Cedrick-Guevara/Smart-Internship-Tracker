@@ -30,10 +30,23 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $resumeMatchLimit = (int) config('services.ai.resume_match_lifetime_limit', 1);
+        $ocrLimit = (int) config('services.ai.ocr_lifetime_limit', 1);
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+            ],
+            'ai' => [
+                'ocrEnabled' => (bool) config('services.ai.ocr_enabled'),
+                'resumeMatchRemaining' => $user
+                    ? max(0, $resumeMatchLimit - (int) $user->ai_resume_match_uses)
+                    : 0,
+                'ocrRemaining' => $user
+                    ? max(0, $ocrLimit - (int) $user->ai_ocr_uses)
+                    : 0,
             ],
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),

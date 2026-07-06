@@ -1,5 +1,7 @@
 import React from "react";
+import { usePage } from "@inertiajs/react";
 import { Internship } from "../../types/internship";
+import { PageProps } from "../../types";
 import { useInternshipOcr } from "../../hooks/useInternshipOcr";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -18,6 +20,8 @@ export default function InternshipForm({
     onSubmit,
     internship,
 }: InternshipFormProps) {
+    const { ai } = usePage<PageProps>().props;
+    const ocrEnabled = ai?.ocrEnabled ?? false;
     const [activeTab, setActiveTab] = React.useState("details");
     const {
         formState,
@@ -100,10 +104,11 @@ export default function InternshipForm({
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         {/* Tab lists */}
                         <div className="px-6 pt-4">
-                            <TabsList className="grid w-full grid-cols-2">
+                            <TabsList className={`grid w-full ${ocrEnabled ? 'grid-cols-2' : 'grid-cols-1'}`}>
                                 <TabsTrigger value="details">
                                     Application Fields
                                 </TabsTrigger>
+                                {ocrEnabled && (
                                 <TabsTrigger value="ai-scan">
                                     <span className="flex items-center space-x-1">
                                         <svg
@@ -122,6 +127,7 @@ export default function InternshipForm({
                                         <span>AI Image Scan</span>
                                     </span>
                                 </TabsTrigger>
+                                )}
                             </TabsList>
                         </div>
 
@@ -394,6 +400,7 @@ export default function InternshipForm({
                         </TabsContent>
 
                         {/* TAB 2: Image AI Scanner Upload Scaffold */}
+                        {ocrEnabled && (
                         <TabsContent value="ai-scan">
                             <div className="px-6 pb-6">
                                 <div
@@ -515,6 +522,7 @@ export default function InternshipForm({
                                 </div>
                             </div>
                         </TabsContent>
+                        )}
                     </Tabs>
                 </div>
             </div>

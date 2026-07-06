@@ -37,3 +37,8 @@ Web/public/hot
 Web/public/storage/
 Web/storage/*.key
 Web/storage/pail/
+
+# Vercel build artifacts (generated at deploy time)
+api/laravel/
+api/php-fpm-bin
+api/vendor.tar.gz

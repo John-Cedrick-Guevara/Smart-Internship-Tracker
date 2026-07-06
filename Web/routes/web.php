@@ -12,7 +12,7 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
+        'canRegister' => Route::has('register') && config('services.ai.allow_registration', true),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
@@ -62,31 +62,33 @@ Route::get('/dashboard', function (Request $request) {
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'throttle:120,1'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Internship routes
     Route::get('/internships', [\App\Http\Controllers\InternshipController::class, 'list'])->name('internships.list');
     Route::post('/internships', [\App\Http\Controllers\InternshipController::class, 'addInternship'])->name('internships.add');
     Route::get('/internships/{internship}', [\App\Http\Controllers\InternshipController::class, 'index'])->name('internships.index');
     Route::put('/internships/{internship}', [\App\Http\Controllers\InternshipController::class, 'updateInternship'])->name('internships.update');
     Route::delete('/internships/{internship}', [\App\Http\Controllers\InternshipController::class, 'deleteInternship'])->name('internships.delete');
 
-    // Notes routes
     Route::get('/internships/{internship}/notes', [\App\Http\Controllers\NoteController::class, 'index'])->name('notes.index');
     Route::post('/internships/{internship}/notes', [\App\Http\Controllers\NoteController::class, 'addNote'])->name('notes.add');
     Route::delete('/internships/{internship}/notes/{note}', [\App\Http\Controllers\NoteController::class, 'deleteNote'])->name('notes.delete');
 
-    // Timeline routes
     Route::get('/internships/{internship}/timeline', [\App\Http\Controllers\TimelineController::class, 'index'])->name('timeline.index');
     Route::post('/internships/{internship}/timeline', [\App\Http\Controllers\TimelineController::class, 'addTimelineEvent'])->name('timeline.add');
     Route::delete('/internships/{internship}/timeline/{timeline_event}', [\App\Http\Controllers\TimelineController::class, 'deleteTimelineEvent'])->name('timeline.delete');
 
-    // OCR route for processing internship screenshots
-    Route::post('/internship/extract', [InternshipOcrController::class, 'processScreenshot'])->name('internships.extract');
-    Route::post('/internships/{internship}/extract', [InternshipOcrController::class, 'processScreenshot'])->name('internships.extract.scoped');
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::post('/internship/extract', [InternshipOcrController::class, 'processScreenshot'])
+            ->middleware('ai.quota:ocr')
+            ->name('internships.extract');
+        Route::post('/internships/{internship}/extract', [InternshipOcrController::class, 'processScreenshot'])
+            ->middleware('ai.quota:ocr')
+            ->name('internships.extract.scoped');
+    });
 
     Route::prefix('/internships/{internship}')->group(function () {
         Route::get('/interview-questions', [InterviewQuestionController::class, 'index'])->name('interview_questions.index');
@@ -94,13 +96,17 @@ Route::middleware('auth')->group(function () {
         Route::patch('/interview-questions/{question}', [InterviewQuestionController::class, 'update'])->name('interview_questions.update');
         Route::delete('/interview-questions/{question}', [InterviewQuestionController::class, 'destroy'])->name('interview_questions.delete');
 
-        Route::get('/assets', [ApplicationAssetController::class, 'index'])->name('application_assets.index');
-        Route::post('/assets', [ApplicationAssetController::class, 'store'])->name('application_assets.store');
-        Route::patch('/assets/{asset}', [ApplicationAssetController::class, 'update'])->name('application_assets.update');
-        Route::delete('/assets/{asset}', [ApplicationAssetController::class, 'destroy'])->name('application_assets.delete');
+        Route::middleware('throttle:20,1')->group(function () {
+            Route::get('/assets', [ApplicationAssetController::class, 'index'])->name('application_assets.index');
+            Route::post('/assets', [ApplicationAssetController::class, 'store'])->name('application_assets.store');
+            Route::patch('/assets/{asset}', [ApplicationAssetController::class, 'update'])->name('application_assets.update');
+            Route::delete('/assets/{asset}', [ApplicationAssetController::class, 'destroy'])->name('application_assets.delete');
+        });
 
         Route::get('/resume-match', [ResumeMatchController::class, 'show'])->name('resume_match.show');
-        Route::post('/resume-match', [ResumeMatchController::class, 'store'])->name('resume_match.store');
+        Route::post('/resume-match', [ResumeMatchController::class, 'store'])
+            ->middleware(['throttle:5,1', 'ai.quota:resume_match'])
+            ->name('resume_match.store');
     });
 });
 
