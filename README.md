@@ -8,9 +8,11 @@ Smart internship/job application tracker with a Laravel + Inertia (React) web ap
 
 - `Web/`: Laravel 13 backend + Inertia React frontend (Kanban board, assets, interview prep, resume alignment)
 - `AI-features/`: FastAPI service used for OCR extraction (image -> extracted text) — local dev only
-- `api/`, `scripts/`, `vercel.json`: Vercel deployment adapter
+- `api/`, `scripts/`, `vercel.json`: Vercel deployment adapter (optional)
+- `Web/Dockerfile`: Render Docker deployment
 - `docs/`: feature docs and implementation plans
-- `DEPLOYMENT.md`: production deployment guide for Vercel
+- `RENDER.md`: **recommended** production guide for Render
+- `DEPLOYMENT.md`: Vercel deployment guide (optional)
 
 ## Features (High Level)
 
@@ -64,18 +66,22 @@ Copy `Web/.env.example` to `Web/.env` and set:
 - `GEMINI_MODEL`: defaults to `gemini-2.0-flash`
 - `OCR_ENABLED`: `false` in production (default)
 - `AI_RESUME_MATCH_LIFETIME_LIMIT`: lifetime Gemini resume analyses per user (default `1`)
-- `REDIS_URL`, `DB_*`, `AWS_*`: required for Vercel production (see `DEPLOYMENT.md`)
+- `REDIS_URL`, `DB_*`, `AWS_*`: required for production (see `RENDER.md`)
 
-## Vercel Deployment
+## Production Deployment (Render — recommended)
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for the full production checklist.
+See [RENDER.md](RENDER.md) for the full checklist.
 
 Quick summary:
 
-1. Provision Neon Postgres, Upstash Redis, and S3 storage
-2. Connect repo to Vercel (root directory)
-3. Set secrets in Vercel dashboard
-4. Deploy and run `php artisan migrate --force`
+1. Create a **Docker** Web Service on Render with **Root Directory** = `Web`
+2. Provision Neon Postgres + Upstash Redis
+3. Set env vars in Render dashboard (`APP_KEY`, `APP_URL`, `GEMINI_API_KEY`, etc.)
+4. Deploy — migrations run automatically on startup
+
+## Vercel Deployment (optional)
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) if you prefer Vercel over Render.
 
 ## Tests
 
@@ -87,6 +93,7 @@ php artisan test
 
 ## Docs
 
+- `RENDER.md`
 - `DEPLOYMENT.md`
 - `docs/CONTEXT.md`
 - `docs/features/`
